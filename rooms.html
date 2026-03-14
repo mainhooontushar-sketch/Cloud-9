@@ -37,6 +37,9 @@ body { margin:0; font-family:'Glacial Indifference', sans-serif; background:#f6f
 </div>
 
 <script>
+
+div.onclick = () => window.location.href = `guestform.html?room=${encodeURIComponent(num)}`;
+
 function goPage(url) { window.location.href = url; }
 
 const container = document.getElementById('roomsContainer');
@@ -51,7 +54,7 @@ fetch(SHEET_URL)
         const div = document.createElement('div');
         div.className = 'room-box';
         div.textContent = 'Room No ' + num;
-        div.onclick = () => window.location.href = `form.html?room=${encodeURIComponent(num)}`;
+        
         container.appendChild(div);
       }
     });
