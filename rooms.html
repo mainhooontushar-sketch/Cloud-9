@@ -129,7 +129,7 @@ rooms.forEach(num => {
  function goPage(url) { window.location.href = url; }
 
     const container = document.getElementById('roomsContainer');
-    const SHEET_URL = 'YOUR_WEB_APP_URL_HERE'; // Replace with Apps Script URL
+    const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyCZ_i2vw9LzszGLuemfPQvsn3-UeU1Irbnw9rUv4iJcYMG8WiCpaEq2YfSYM3xgcER/exec'; // Replace with Apps Script URL
 
     fetch(SHEET_URL)
       .then(res => res.json())
