@@ -50,7 +50,7 @@ fetch(SHEET_URL)
       if(num){ 
         const div = document.createElement('div');
         div.className = 'room-box';
-        div.textContent = 'Room ' + num;
+        div.textContent = 'Room No' + num;
         div.onclick = () => window.location.href = `form.html?room=${encodeURIComponent(num)}`;
         container.appendChild(div);
       }
