@@ -125,6 +125,28 @@ rooms.forEach(num => {
   };
   container.appendChild(div);
 });
+
+ function goPage(url) { window.location.href = url; }
+
+    const container = document.getElementById('roomsContainer');
+    const SHEET_URL = 'YOUR_WEB_APP_URL_HERE'; // Replace with Apps Script URL
+
+    fetch(SHEET_URL)
+      .then(res => res.json())
+      .then(rooms => {
+        container.innerHTML = '';
+        rooms.forEach(num => {
+          const div = document.createElement('div');
+          div.className = 'room-box';
+          div.textContent = 'Room ' + num;
+          div.onclick = () => window.location.href = `form.html?room=${encodeURIComponent(num)}`;
+          container.appendChild(div);
+        });
+      })
+      .catch(err => {
+        console.error(err);
+        container.textContent = "Failed to load rooms.";
+      }); 
 </script>
 
 </body>
