@@ -1,0 +1,56 @@
+<!-- sidebar.html -->
+<div class="sidebar">
+  <div class="logo">HotelApp</div>
+  <ul>
+    <li onclick="goPage('index.html')">🏠 Dashboard</li>
+    <li onclick="goPage('rooms.html')">🛏️ Rooms</li>
+    <li onclick="goPage('form.html')">👤 Guests</li>
+    <li onclick="goPage('payments.html')">💳 Payments</li>
+    <li onclick="goPage('settings.html')">⚙️ Settings</li>
+  </ul>
+</div>
+
+<style>
+.sidebar {
+  width: 220px;
+  height: 100vh;
+  background: #fff;
+  border-right: 1px solid #ddd;
+  position: fixed;
+  top: 0;
+  left: 0;
+  font-family: 'Glacial Indifference', sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar .logo {
+  font-weight: bold;
+  font-size: 20px;
+  padding: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+}
+
+.sidebar ul li {
+  padding: 15px 20px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.sidebar ul li:hover {
+  background: #f2f2f2;
+}
+</style>
+
+<script>
+function goPage(url) {
+  window.location.href = url;
+}
+</script>
