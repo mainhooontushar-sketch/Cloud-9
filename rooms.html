@@ -40,15 +40,14 @@ body { margin:0; font-family:'Glacial Indifference', sans-serif; background:#f6f
 function goPage(url) { window.location.href = url; }
 
 const container = document.getElementById('roomsContainer');
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwnoRnma9WDo85ALWz_NtDejKWB5AWsggDdv90XpJKktS2kd0PfAEABJnPKedyDVeqi/exec';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyh8WzwC4EVDf5g_UhRKU4-lul8bUQESnjD0BU-oIbhXJBWQpzyeblgQJZVSMvHWW7-/exec';
 
-// fetch room numbers dynamically
 fetch(SHEET_URL)
   .then(res => res.json())
   .then(rooms => {
     container.innerHTML = '';
     rooms.forEach(num => {
-      if(num){ // ignore empty cells
+      if(num){ 
         const div = document.createElement('div');
         div.className = 'room-box';
         div.textContent = 'Room ' + num;
