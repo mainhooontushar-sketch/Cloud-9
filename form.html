@@ -446,7 +446,7 @@ openPayment();
 
   const data = { room, checkin, checkout, guests };
 
-  fetch("YOUR_WEB_APP_URL", {
+  fetch("https://script.google.com/macros/s/AKfycbxYe-pl3UBqEulsnWyd-kXD4iFJcj_ebdDcOlUXlvniJuUzggcbaw2dec253OoWoZDk/exec", {
     method: "POST",
     body: JSON.stringify(data),
     headers: { "Content-Type": "application/json" }
