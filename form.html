@@ -436,8 +436,7 @@ openPayment();
   const checkin = document.getElementById("checkin").value;
   const checkout = document.getElementById("checkout").value;
 
-  const guestsEls = document.querySelectorAll(".guest");
-  const guests = Array.from(guestsEls).map(g => ({
+  const guests = Array.from(document.querySelectorAll(".guest")).map(g => ({
     name: g.querySelector(".name").value.trim(),
     mobile: g.querySelector(".mobile").value.trim(),
     docType: g.querySelector(".doctype").value,
@@ -446,57 +445,29 @@ openPayment();
 
   const data = { room, checkin, checkout, guests };
 
-  fetch("https://script.google.com/macros/s/AKfycbyTZggXHEhTz5tkdyVscdQvoUKJ6MiY3z3qsrKjk930W_N70s3paq_ypJr8x3XKBtBB/exec", {
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby6va_4B-9qqrglL59d7__DhvYCMzsKCmKHZqU5HVpTb9Z2-xq4Pp85hldw0Pf79Hra/exec"; // Replace with your deployed Apps Script URL
+
+  fetch(SCRIPT_URL, {
     method: "POST",
-    body: JSON.stringify(data),
-    headers: { "Content-Type": "application/json" }
+    body: JSON.stringify(data)
   })
   .then(res => res.json())
   .then(res => {
-    if(res.status === "success") {
+    if(res.status === "success"){
       alert("Booking submitted successfully!");
       resetForm();
     } else {
-      alert("Error: " + res.message);
+      alert("Failed to submit booking.");
     }
   })
-  .catch(err => alert("Error submitting form: " + err.message));
+  .catch(err => {
+    console.error("Error:", err);
+    alert("Error submitting booking.");
+  });
 }
+  // COMPLETE PAY//
 
-  //complete pa//
-
-  function submitToSheet() {
-  const room = document.getElementById("room").value.trim();
-  const checkin = document.getElementById("checkin").value;
-  const checkout = document.getElementById("checkout").value;
-
-  const guestsEls = document.querySelectorAll(".guest");
-  const guests = Array.from(guestsEls).map(g => ({
-    name: g.querySelector(".name").value.trim(),
-    mobile: g.querySelector(".mobile").value.trim(),
-    docType: g.querySelector(".doctype").value,
-    docNumber: g.querySelector(".docnumber").value.trim()
-  }));
-
-  const data = { room, checkin, checkout, guests };
-
-  fetch("YOUR_WEB_APP_URL", {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers: { "Content-Type": "application/json" }
-  })
-  .then(res => res.json())
-  .then(res => {
-    if(res.status === "success") {
-      alert("Booking submitted successfully!");
-      resetForm();
-    } else {
-      alert("Error: " + res.message);
-    }
-  })
-  .catch(err => alert("Error submitting form: " + err.message));
-}
-
+  
 // ========== PAYMENT ==========
 function openPayment(){ document.getElementById("paymentModal").style.display="flex"; }
 function closePayment(){ document.getElementById("paymentModal").style.display="none"; resetForm(); }
@@ -505,13 +476,17 @@ document.querySelectorAll(".pay-btn").forEach(b=>b.classList.remove("active"));
 el.classList.add("active");
 if(type==="upi"){ document.getElementById("qrBox").style.display="block"; }else{ document.getElementById("qrBox").style.display="none"; }
 }
-function completePayment(){
-document.getElementById("successMsg").style.display="block";
-setTimeout(function(){
-document.getElementById("paymentModal").style.display="none";
-document.getElementById("successMsg").style.display="none";
-resetForm();
-},2000);
+function completePayment() {
+  document.getElementById("successMsg").style.display = "block";
+
+  setTimeout(function() {
+    document.getElementById("paymentModal").style.display = "none";
+    document.getElementById("successMsg").style.display = "none";
+
+    // Now submit the booking to Google Sheets
+    submitToSheet();
+
+  }, 2000);
 }
 
 // ========== RESET ==========
