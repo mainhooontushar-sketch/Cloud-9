@@ -595,6 +595,38 @@ function selectPay(el) {
     paymentStatus = "Paid"; // Cash/Card is considered Paid immediately
   }
 }
+
+  window.addEventListener("DOMContentLoaded", function(){
+
+const params = new URLSearchParams(window.location.search);
+const room = params.get("room");
+
+if(room){
+document.getElementById("room").value = room;
+}
+
+});
+
+  window.addEventListener("DOMContentLoaded", function(){
+
+const today = new Date();
+const yyyy = today.getFullYear();
+const mm = String(today.getMonth()+1).padStart(2,'0');
+const dd = String(today.getDate()).padStart(2,'0');
+
+const todayFormatted = `${yyyy}-${mm}-${dd}`;
+
+const checkin = document.getElementById("checkin");
+const checkout = document.getElementById("checkout");
+
+checkin.min = todayFormatted;
+checkout.min = todayFormatted;
+
+checkin.addEventListener("change", function(){
+checkout.min = checkin.value;
+});
+
+});
   
 </script>
 
