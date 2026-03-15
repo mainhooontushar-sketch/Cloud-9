@@ -350,9 +350,9 @@ UPLOAD DOCUMENT
 <div class="modal-content">
 <h3>Select Payment</h3>
 <div class="payment-options">
-<div class="pay-btn" onclick="selectPay(this,'cash')">Cash</div>
-<div class="pay-btn" onclick="selectPay(this,'card')">Card</div>
-<div class="pay-btn" onclick="selectPay(this,'upi')">UPI</div>
+  <div class="pay-btn" data-method="Cash" onclick="selectPay(this)">Cash</div>
+  <div class="pay-btn" data-method="Card" onclick="selectPay(this)">Card</div>
+  <div class="pay-btn" data-method="UPI" onclick="selectPay(this)">UPI</div>
 </div>
 
 <div class="qr" id="qrBox">
@@ -486,14 +486,17 @@ el.classList.add("active");
 if(type==="upi"){ document.getElementById("qrBox").style.display="block"; }else{ document.getElementById("qrBox").style.display="none"; }
 }
 function completePayment(){
-  paymentStatus = "Paid";  // Only after clicking PAY NOW
+  if(selectedPaymentMethod === "UPI") {
+    paymentStatus = "Paid"; // Only mark Paid after scanning UPI & clicking PAY NOW
+  }
+
   document.getElementById("successMsg").style.display = "block";
 
-  setTimeout(function(){
+  setTimeout(() => {
     document.getElementById("paymentModal").style.display = "none";
     document.getElementById("successMsg").style.display = "none";
 
-    // Submit to Google Sheets
+    // Submit form data to Google Sheet
     submitToSheet();
   }, 2000);
 }
@@ -534,21 +537,26 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 //pay status//
-  let selectedPaymentMethod = "";
-let paymentStatus = "Unpaid";
+  let selectedPaymentMethod = ""; // Will store the selected method
+let paymentStatus = "Unpaid";   // Default
 
-function selectPay(el, type) {
+function selectPay(el) {
+  // Remove active from all buttons
   document.querySelectorAll(".pay-btn").forEach(b => b.classList.remove("active"));
   el.classList.add("active");
-  selectedPaymentMethod = type;
 
-  if(type === "upi"){
+  // Get the method directly from the button's data attribute
+  selectedPaymentMethod = el.getAttribute("data-method");
+
+  // Show QR only if UPI
+  if(selectedPaymentMethod === "UPI"){
     document.getElementById("qrBox").style.display = "block";
+    paymentStatus = "Unpaid"; // Will change to Paid after PAY NOW
   } else {
     document.getElementById("qrBox").style.display = "none";
+    paymentStatus = "Paid"; // Cash/Card is considered Paid immediately
   }
 }
-
   
 </script>
 
