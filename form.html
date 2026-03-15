@@ -462,7 +462,8 @@ openPayment();
   .then(res => {
     if(res.status === "success"){
       alert("Booking submitted successfully!");
-      resetForm();
+      // Redirect to rooms.html instead of resetting the form
+      window.location.href = "rooms.html";
     } else {
       alert("Failed to submit booking.");
     }
