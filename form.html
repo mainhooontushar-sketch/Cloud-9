@@ -280,7 +280,7 @@ button{
 <div class="top">
 
 <div class="field">
-<input id="room" placeholder=" ">
+<input id="room" placeholder=" " readonly>
 <label>ROOM NO</label>
 </div>
 
@@ -431,7 +431,7 @@ openPayment();
 
   //submit enw //
 
-  function submitToSheet() {
+  function submitToSheet(){
   const room = document.getElementById("room").value.trim();
   const checkin = document.getElementById("checkin").value;
   const checkout = document.getElementById("checkout").value;
@@ -443,9 +443,16 @@ openPayment();
     docNumber: g.querySelector(".docnumber").value.trim()
   }));
 
-  const data = { room, checkin, checkout, guests };
+  const data = { 
+    room, 
+    checkin, 
+    checkout, 
+    guests, 
+    paymentMethod: selectedPaymentMethod,
+    paymentStatus: paymentStatus
+  };
 
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby6va_4B-9qqrglL59d7__DhvYCMzsKCmKHZqU5HVpTb9Z2-xq4Pp85hldw0Pf79Hra/exec"; // Replace with your deployed Apps Script URL
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby6va_4B-9qqrglL59d7__DhvYCMzsKCmKHZqU5HVpTb9Z2-xq4Pp85hldw0Pf79Hra/exec"; // Replace with your Apps Script URL
 
   fetch(SCRIPT_URL, {
     method: "POST",
@@ -465,6 +472,8 @@ openPayment();
     alert("Error submitting booking.");
   });
 }
+
+  
   // COMPLETE PAY//
 
   
@@ -476,16 +485,16 @@ document.querySelectorAll(".pay-btn").forEach(b=>b.classList.remove("active"));
 el.classList.add("active");
 if(type==="upi"){ document.getElementById("qrBox").style.display="block"; }else{ document.getElementById("qrBox").style.display="none"; }
 }
-function completePayment() {
+function completePayment(){
+  paymentStatus = "Paid";  // Only after clicking PAY NOW
   document.getElementById("successMsg").style.display = "block";
 
-  setTimeout(function() {
+  setTimeout(function(){
     document.getElementById("paymentModal").style.display = "none";
     document.getElementById("successMsg").style.display = "none";
 
-    // Now submit the booking to Google Sheets
+    // Submit to Google Sheets
     submitToSheet();
-
   }, 2000);
 }
 
@@ -523,6 +532,24 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('room').value = roomNo;
   }
 });
+
+//pay status//
+  let selectedPaymentMethod = "";
+let paymentStatus = "Unpaid";
+
+function selectPay(el, type) {
+  document.querySelectorAll(".pay-btn").forEach(b => b.classList.remove("active"));
+  el.classList.add("active");
+  selectedPaymentMethod = type;
+
+  if(type === "upi"){
+    document.getElementById("qrBox").style.display = "block";
+  } else {
+    document.getElementById("qrBox").style.display = "none";
+  }
+}
+
+  
 </script>
 
 </body>
