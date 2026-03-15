@@ -436,12 +436,49 @@ openPayment();
   const checkin = document.getElementById("checkin").value;
   const checkout = document.getElementById("checkout").value;
 
-  const guests = Array.from(document.querySelectorAll(".guest")).map(g => ({
-    name: g.querySelector(".name").value.trim(),
-    mobile: g.querySelector(".mobile").value.trim(),
-    docType: g.querySelector(".doctype").value,
-    docNumber: g.querySelector(".docnumber").value.trim()
-  }));
+  async function getGuests(){
+
+let guests = [];
+
+for (const g of document.querySelectorAll(".guest")) {
+
+let fileInput = g.querySelector(".docfile");
+let file = fileInput.files[0];
+
+if(!file){
+alert("Please upload document for all guests");
+throw new Error("Document missing");
+}
+
+let base64String = await toBase64(file);
+
+guests.push({
+name: g.querySelector(".name").value.trim(),
+mobile: g.querySelector(".mobile").value.trim(),
+docType: g.querySelector(".doctype").value,
+docNumber: g.querySelector(".docnumber").value.trim(),
+
+file:{
+name:file.name,
+type:file.type,
+data:base64String
+}
+
+});
+
+}
+
+    function toBase64(file){
+return new Promise((resolve,reject)=>{
+let reader = new FileReader();
+reader.readAsDataURL(file);
+reader.onload = ()=> resolve(reader.result.split(',')[1]);
+reader.onerror = error => reject(error);
+});
+}
+
+return guests;
+}
 
   const data = { 
     room, 
@@ -452,7 +489,7 @@ openPayment();
     paymentStatus: paymentStatus
   };
 
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwVewN0_hJw2qcXFWlk7BWsVniAbnNOzqZ4xhPZQnFvUpZQRzJ4YmU9OaP7SDTa1ud1/exec"; // Replace with your Apps Script URL
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx2hB0o7rMOE-w-1RcGL8iRJr-FVSCuFM_kLdqRZhBFeNQfnxvMBgTje7EdKplP7v2w/exec"; // Replace with your Apps Script URL
 
   fetch(SCRIPT_URL, {
     method: "POST",
@@ -498,9 +535,9 @@ function completePayment(){
     document.getElementById("successMsg").style.display = "none";
 
     // Submit form data to Google Sheet
-    submitToSheet();
-  }, 2000);
-}
+async function submitToSheet(){
+
+const guests = await getGuests();
 
 // ========== RESET ==========
 function resetForm(){
