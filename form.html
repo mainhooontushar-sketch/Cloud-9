@@ -142,8 +142,7 @@
 </div>
 
 <script>
-    // REPLACE THIS URL with your latest Web App deployment URL
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7cpPXALEMFw6Dr3GaCFBg1mJeNveGRY3uiZlVLgE4-Bjeh4R8pPCBJT8U3h2u17Nz/exec'; 
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbybLrllhgPFJ-e-fiXjnIAQK2weA_WGrsmYIuKrKchHwnnqImNjsZQ4KUQckLCg49aR/exec'; 
     let selectedMethod = "";
 
     function goPage(url) { window.location.href = url; }
@@ -214,118 +213,76 @@
         document.getElementById('qrBox').style.display = (method === 'UPI') ? 'block' : 'none';
     }
 
-  // FUNCTION A: Only sends text
-async function saveGuestData(payload) {
-    await fetch(SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: JSON.stringify(payload)
-    });
-}
-
-// FUNCTION B: Only sends files
-async function uploadFiles(fileDataArray) {
-    for (let file of fileDataArray) {
-        await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify({
-                action: "upload",
-                fileData: file.data,
-                fileName: file.name,
-                fileType: file.type
-            })
-        });
+    // Step 1: Logic to Upload Files as Byte Arrays (Stable)
+    async function uploadFiles(fileInputs) {
+        for (let input of fileInputs) {
+            if (input.files[0]) {
+                const file = input.files[0];
+                const fr = new FileReader();
+                
+                await new Promise(resolve => {
+                    fr.readAsArrayBuffer(file);
+                    fr.onload = async (f) => {
+                        const qs = new URLSearchParams({ filename: file.name, mimeType: file.type });
+                        await fetch(`${SCRIPT_URL}?${qs}`, {
+                            method: "POST",
+                            mode: "no-cors",
+                            body: JSON.stringify([...new Int8Array(f.target.result)]),
+                        });
+                        resolve();
+                    };
+                });
+            }
+        }
     }
-}
 
-// FUNCTION A: Only sends text
-async function saveGuestData(payload) {
-    await fetch(SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: JSON.stringify(payload)
-    });
-}
+    // Step 2: Logic to Save Data then trigger Files
+    async function completeBooking() {
+        if (!selectedMethod) return alert("Select payment method");
+        
+        const finishBtn = document.querySelector('.modal-content button[onclick="completeBooking()"]');
+        finishBtn.innerText = "1. Saving Details..."; 
+        finishBtn.disabled = true;
 
-// FUNCTION B: Improved Byte-Array Upload
-async function uploadFiles(fileInputs) {
-    for (let input of fileInputs) {
-        if (input.files[0]) {
-            const file = input.files[0];
-            const fr = new FileReader();
-            
-            await new Promise(resolve => {
-                fr.readAsArrayBuffer(file);
-                fr.onload = async (f) => {
-                    // Use URL parameters for metadata to keep the body clean
-                    const qs = new URLSearchParams({ 
-                        filename: file.name, 
-                        mimeType: file.type 
-                    });
-                    
-                    await fetch(`${SCRIPT_URL}?${qs}`, {
-                        method: "POST",
-                        mode: "no-cors",
-                        // Convert ArrayBuffer to the Byte Array format Google likes
-                        body: JSON.stringify([...new Int8Array(f.target.result)]),
-                    });
-                    resolve();
-                };
+        const payload = {
+            room: document.getElementById('roomNo').value,
+            checkin: document.getElementById('checkin').value,
+            checkout: document.getElementById('checkout').value,
+            method: selectedMethod,
+            guests: Array.from(document.querySelectorAll('.guest-card')).map(row => ({
+                name: row.querySelector('.name').value,
+                mobile: row.querySelector('.mobile').value,
+                docType: row.querySelector('.doctype').value,
+                docNumber: row.querySelector('.docnumber').value
+            }))
+        };
+
+        try {
+            // Send text data first
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(payload)
             });
+
+            // If text saved, upload files
+            const fileInputs = document.querySelectorAll('.docfile');
+            const hasFiles = Array.from(fileInputs).some(i => i.files.length > 0);
+
+            if (hasFiles) {
+                finishBtn.innerText = "2. Uploading ID...";
+                await uploadFiles(fileInputs);
+            }
+
+            document.getElementById('successMsg').style.display = 'block';
+            setTimeout(() => { window.location.href = 'rooms.html'; }, 2000);
+
+        } catch (e) {
+            console.error("Error:", e);
+            alert("Process finished. Check spreadsheet.");
+            window.location.href = 'rooms.html';
         }
     }
-}
-
-// FUNCTION C: Main Trigger
-async function completeBooking() {
-    if (!selectedMethod) return alert("Select payment method");
-    
-    const finishBtn = document.querySelector('.modal-content button[onclick="completeBooking()"]');
-    const originalText = finishBtn.innerText;
-    finishBtn.innerText = "1. Saving Details..."; 
-    finishBtn.disabled = true;
-
-    // 1. Prepare Text Data
-    const payload = {
-        room: document.getElementById('roomNo').value,
-        checkin: document.getElementById('checkin').value,
-        checkout: document.getElementById('checkout').value,
-        method: selectedMethod,
-        guests: Array.from(document.querySelectorAll('.guest-card')).map(row => ({
-            name: row.querySelector('.name').value,
-            mobile: row.querySelector('.mobile').value,
-            docType: row.querySelector('.doctype').value,
-            docNumber: row.querySelector('.docnumber').value
-        }))
-    };
-
-    try {
-        // STEP 1: Save Guest Info
-        await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify(payload)
-        });
-
-        // STEP 2: Handle Files directly from the inputs
-        const fileInputs = document.querySelectorAll('.docfile');
-        let hasFiles = Array.from(fileInputs).some(input => input.files.length > 0);
-
-        if (hasFiles) {
-            finishBtn.innerText = "2. Uploading ID...";
-            await uploadFiles(fileInputs);
-        }
-
-        document.getElementById('successMsg').style.display = 'block';
-        setTimeout(() => { window.location.href = 'rooms.html'; }, 2000);
-
-    } catch (e) {
-        console.error("Error:", e);
-        alert("Booking saved, but ID upload failed.");
-        window.location.href = 'rooms.html';
-    }
-}
 </script>
 </body>
 </html>
