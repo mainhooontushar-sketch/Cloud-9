@@ -72,6 +72,8 @@ fetch(SHEET_URL)
     console.error("Error fetching rooms:", err);
     container.textContent = "Failed to load rooms.";
   });
+
+  window.location.href = "form.html?room=" + roomNumber;
 </script>
 
 </body>
