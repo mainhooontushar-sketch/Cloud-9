@@ -11,14 +11,12 @@
         --sidebar-width: 220px;
     }
 
-    /* Font and Dropdown UI */
     body, input, select, button {
         font-family: 'Century Gothic', AppleGothic, sans-serif;
     }
 
     body { margin: 0; background: var(--bg-gray); color: #333; }
 
-    /* Custom Dropdown Styling */
     select {
         appearance: none; -webkit-appearance: none; -moz-appearance: none;
         background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ff385c' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
@@ -39,7 +37,6 @@
     .sidebar ul li { padding: 15px 20px; cursor: pointer; transition: 0.2s; }
     .sidebar ul li:hover { background: var(--primary-red); color: white; }
 
-    /* Success State for Upload */
     .upload-btn.success {
         background-color: #e8f5e9 !important;
         color: #2e7d32 !important;
@@ -145,12 +142,11 @@
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwlO2Og39ZohBdQiz7Jy5F5H90yrFQM52P4cUz6hEbGrh5e0caLE91s7Um_NmOq0n63/exec'; 
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzdjOb4-rNONK6MCCBuISoMT6iTQJV0XPcU_J4tU0eTgSXzDB0Ut4wJ-KabxHlhbo6A/exec'; 
     let selectedMethod = "";
 
     function goPage(url) { window.location.href = url; }
 
-    // UNIFIED ONLOAD LOGIC
     window.onload = () => {
         const params = new URLSearchParams(window.location.search);
         if(params.get('room')) document.getElementById('roomNo').value = params.get('room');
@@ -166,7 +162,6 @@
         cout.min = today;
 
         cin.addEventListener('change', function() {
-            if(this.value < today) { alert("Past dates not allowed"); this.value = today; }
             cout.min = this.value;
             if (cout.value < this.value) cout.value = this.value;
         });
@@ -236,63 +231,65 @@
     }
 
     async function completeBooking() {
-        if(!selectedMethod) return alert("Select payment method");
-        const finishBtn = document.querySelector('.modal-content button[onclick="completeBooking()"]');
-        finishBtn.innerText = "Processing..."; finishBtn.disabled = true;
+        if (!selectedMethod) return alert("Please select a payment method.");
+
+        const finishBtn = document.querySelector('.btn-save[onclick="completeBooking()"]');
+        finishBtn.innerText = "Uploading...";
+        finishBtn.disabled = true;
 
         const fmtDate = (dateStr) => {
+            if (!dateStr) return "";
             const [y, m, d] = dateStr.split('-');
             return `${d}-${m}-${y}`;
         };
 
         const guests = [];
-        for(let row of document.querySelectorAll('.guest-card')) {
-            const fileInput = row.querySelector('.docfile').files[0];
-            let base64 = "";
-            if(fileInput) {
-                base64 = await new Promise(res => {
-                    const reader = new FileReader();
-                    reader.onload = () => res(reader.result.split(',')[1]);
-                    reader.readAsDataURL(fileInput);
+        const rows = document.querySelectorAll('.guest-card');
+
+        try {
+            for (let row of rows) {
+                const fileInput = row.querySelector('.docfile').files[0];
+                let base64 = "";
+                if (fileInput) {
+                    base64 = await new Promise(res => {
+                        const r = new FileReader();
+                        r.onload = () => res(r.result.split(',')[1]);
+                        r.readAsDataURL(fileInput);
+                    });
+                }
+                guests.push({
+                    name: row.querySelector('.name').value,
+                    mobile: row.querySelector('.mobile').value,
+                    docType: row.querySelector('.doctype').value,
+                    docNumber: row.querySelector('.docnumber').value,
+                    fileData: base64,
+                    fileName: fileInput.name,
+                    fileType: fileInput.type
                 });
             }
-            guests.push({
-    name: row.querySelector('.name').value,
-    mobile: row.querySelector('.mobile').value,
-    docType: row.querySelector('.doctype').value,
-    docNumber: row.querySelector('.docnumber').value,
-    fileData: base64,
-    fileName: fileInput ? fileInput.name : "",
-    fileType: fileInput ? fileInput.type : ""
-});
-        }
 
-        const payload = {
-            room: document.getElementById('roomNo').value,
-            checkin: fmtDate(document.getElementById('checkin').value),
-            checkout: fmtDate(document.getElementById('checkout').value),
-            method: selectedMethod, guests: guests
-        };
-fetch(SCRIPT_URL, {
-    method: "POST",
-    mode: "cors",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-})
-.then(res => res.json())
-.then(data => {
-    console.log(data);
-    document.getElementById('successMsg').style.display = 'block';
-    setTimeout(() => window.location.href = 'rooms.html', 2000);
-})
-.catch(err => {
-    console.error(err);
-    alert("Error saving data");
-    finishBtn.disabled = false;
-    finishBtn.innerText = "FINALIZE BOOKING";
-});
+            const payload = {
+                room: document.getElementById('roomNo').value,
+                checkin: fmtDate(document.getElementById('checkin').value),
+                checkout: fmtDate(document.getElementById('checkout').value),
+                method: selectedMethod,
+                guests: guests
+            };
+
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', 
+                body: JSON.stringify(payload)
+            });
+
+            document.getElementById('successMsg').style.display = 'block';
+            setTimeout(() => { window.location.href = 'rooms.html'; }, 2500);
+
+        } catch (err) {
+            alert("Error saving data");
+            finishBtn.disabled = false;
+            finishBtn.innerText = "FINALIZE BOOKING";
+        }
     }
 </script>
 </body>
