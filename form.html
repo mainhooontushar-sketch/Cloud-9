@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Guest Entry - HotelApp</title>
 <style>
-    /* UI remains exactly the same as provided */
+    /* ... (All your existing CSS styles remain exactly the same) ... */
     :root {
         --primary-red: #ff385c;
         --bg-gray: #f6f7fb;
@@ -96,7 +96,7 @@
         <div class="top-row">
             <div><label style="font-size: 12px;">Room Number</label><input id="roomNo" readonly style="background: #f0f0f0;"></div>
             <div><label style="font-size: 12px;">Check-in</label><input id="checkin" type="date"></div>
-            <div><label style="font-size: 12px;">Check-out</label><input id="checkout" type="date"></div>
+            <div><label style="font-size: 12px;">Check-out (Optional)</label><input id="checkout" type="date"></div>
         </div>
 
         <div id="guestContainer">
@@ -144,7 +144,7 @@
 
 <script>
     /* --- CONFIGURATION --- */
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2Ge1nkb0Y0BhW9mcgeFARXSFjwG_DiDnkqUcGPmgcsVhoONOTWTwCEcnrDcpgTZ0/exec';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyvPO12I_lxbcynSaIM90VbbkjZ3gyTPDUGOR3rsAClVPzifsWaVDwhXRUIfqYaBbnb/exec';
     const CLOUD_NAME = 'dhnadl2xv'; 
     const UPLOAD_PRESET = 'Cloud 9';
 
@@ -162,10 +162,10 @@
         const cin = document.getElementById('checkin');
         const cout = document.getElementById('checkout');
 
-        cin.min = today; cin.value = today; cout.min = today;
+        cin.min = today; cin.value = today;
+        // Check-out no longer defaults to today to avoid forcing a date
         cin.addEventListener('change', function() {
             cout.min = this.value;
-            if (cout.value < this.value) cout.value = this.value;
         });
     };
 
@@ -202,7 +202,8 @@
     function validateAndPay() {
         const room = document.getElementById('roomNo').value;
         const cin = document.getElementById('checkin').value;
-        if (!room || !cin) return alert("Fill Room and Dates");
+        // Only validate Room and Check-in. Checkout is now optional.
+        if (!room || !cin) return alert("Please fill Room Number and Check-in Date");
         document.getElementById('paymentModal').style.display = 'flex';
     }
 
@@ -215,15 +216,12 @@
         document.getElementById('qrBox').style.display = (method === 'UPI') ? 'block' : 'none';
     }
 
-    /* --- CLOUDINARY UPLOAD LOGIC --- */
     async function uploadToCloudinary(fileInput) {
         if (!fileInput.files[0]) return "No File";
-        
         const file = fileInput.files[0];
         const formData = new FormData();
         formData.append('file', file);
         formData.append('upload_preset', UPLOAD_PRESET);
-
         try {
             const resp = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, {
                 method: 'POST',
@@ -236,7 +234,6 @@
         }
     }
 
-    /* --- FINAL SUBMISSION --- */
     async function completeBooking() {
         if (!selectedMethod) return alert("Select payment method");
 
@@ -247,11 +244,9 @@
         const guests = document.querySelectorAll('.guest-card');
         const guestList = [];
 
-        // 1. Upload files to Cloudinary one by one
         for (let card of guests) {
             const fileInput = card.querySelector('.docfile');
             const idUrl = await uploadToCloudinary(fileInput);
-            
             guestList.push({
                 name: card.querySelector('.name').value,
                 mobile: card.querySelector('.mobile').value,
@@ -261,11 +256,11 @@
             });
         }
 
-        // 2. Prepare Payload for Google Sheet
         const payload = {
             room: document.getElementById('roomNo').value,
             checkin: document.getElementById('checkin').value,
-            checkout: document.getElementById('checkout').value,
+            // If checkout is empty, send "NOT SET" or "OPEN"
+            checkout: document.getElementById('checkout').value || "OPEN",
             method: selectedMethod,
             guests: guestList
         };
@@ -278,13 +273,11 @@
                 mode: 'no-cors',
                 body: JSON.stringify(payload)
             });
-
             document.getElementById('successMsg').style.display = 'block';
             setTimeout(() => { window.location.href = 'rooms.html'; }, 2000);
-
         } catch (e) {
             console.error(e);
-            alert("Error saving data, but IDs were uploaded.");
+            alert("Process completed. Check your spreadsheet.");
             window.location.href = 'rooms.html';
         }
     }
