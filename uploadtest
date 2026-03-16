@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Isolated Upload Test</title>
+    <style>
+        body { font-family: sans-serif; padding: 50px; text-align: center; }
+        .box { border: 2px dashed #ccc; padding: 30px; border-radius: 10px; display: inline-block; }
+        #status { margin-top: 20px; font-weight: bold; color: blue; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h3>Drive Upload Tester</h3>
+        <input type="file" id="testFile"><br><br>
+        <button onclick="startTest()">UPLOAD TO GOOGLE DRIVE</button>
+        <div id="status">Ready</div>
+    </div>
+
+    <script>
+        // PASTE YOUR NEW WEB APP URL HERE
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzh4xKJhdlYcjlD_xaa25BzK5uiwuHFk3YcMYrOfJyfa_W9z8vtIvFO7SMb0xkBOSXx/exec";
+
+        async function startTest() {
+            const fileInput = document.getElementById('testFile');
+            const status = document.getElementById('status');
+            
+            if (!fileInput.files[0]) return alert("Select a file first");
+
+            status.innerText = "Uploading... please wait";
+            status.style.color = "orange";
+
+            const file = fileInput.files[0];
+            
+            // Pass metadata in the URL to avoid CORS "Preflight"
+            const params = new URLSearchParams({
+                filename: file.name,
+                mimeType: file.type
+            });
+
+            try {
+                const response = await fetch(`${SCRIPT_URL}?${params}`, {
+                    method: "POST",
+                    body: file, // Sending the raw file object
+                    mode: "no-cors" // Essential for testing locally or on GitHub
+                });
+
+                // Note: With no-cors, we can't read the JSON response, 
+                // but we can check if it finished.
+                status.innerText = "Upload Triggered! Check your Google Drive Folder.";
+                status.style.color = "green";
+
+            } catch (err) {
+                status.innerText = "Error: " + err.message;
+                status.style.color = "red";
+            }
+        }
+    </script>
+</body>
+</html>
