@@ -73,7 +73,7 @@
 
 <script>
 /* --- UPDATED CONFIGURATION --- */
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyPL531Y-PfxbWpRJPEubkcNReoqW8ditzmpm_2oFjVRzsZBObI0J2Ol5Lphfr5EZUC/exec'; 
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzj23Ws9xD4Ik5KaDo3JYJsMnGxO65AAhxuAx1_ffjp1U9ktlEI6DXTzc5akwLig7QF/exec'; 
 let roomList = []; // Filled dynamically from "Rooms" sheet
 let activeBookings = {};
 
@@ -81,12 +81,11 @@ function goPage(url) { window.location.href = url; }
 
 async function fetchStatus() {
     try {
-        // Changed action to 'getFullStatus' to get Rooms + Bookings
         const response = await fetch(`${SCRIPT_URL}?action=getFullStatus`);
         const data = await response.json();
         
-        roomList = data.rooms;         // List from your "Rooms" sheet
-        activeBookings = data.bookings; // Status from your "Bookings" sheet
+        roomList = data.rooms;         // Now contains data from Rooms!B2:B
+        activeBookings = data.bookings; // Status from your Bookings sheet
         
         renderRooms();
     } catch (e) {
