@@ -248,27 +248,41 @@ async function saveGuestData(payload) {
     });
 }
 
-// FUNCTION B: Only sends files
-async function uploadFiles(fileDataArray) {
-    for (let file of fileDataArray) {
-        await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify({
-                action: "upload",
-                fileData: file.data,
-                fileName: file.name,
-                fileType: file.type
-            })
-        });
+// FUNCTION B: Improved Byte-Array Upload
+async function uploadFiles(fileInputs) {
+    for (let input of fileInputs) {
+        if (input.files[0]) {
+            const file = input.files[0];
+            const fr = new FileReader();
+            
+            await new Promise(resolve => {
+                fr.readAsArrayBuffer(file);
+                fr.onload = async (f) => {
+                    // Use URL parameters for metadata to keep the body clean
+                    const qs = new URLSearchParams({ 
+                        filename: file.name, 
+                        mimeType: file.type 
+                    });
+                    
+                    await fetch(`${SCRIPT_URL}?${qs}`, {
+                        method: "POST",
+                        mode: "no-cors",
+                        // Convert ArrayBuffer to the Byte Array format Google likes
+                        body: JSON.stringify([...new Int8Array(f.target.result)]),
+                    });
+                    resolve();
+                };
+            });
+        }
     }
 }
 
-// FUNCTION C: The main trigger
+// FUNCTION C: Main Trigger
 async function completeBooking() {
     if (!selectedMethod) return alert("Select payment method");
     
     const finishBtn = document.querySelector('.modal-content button[onclick="completeBooking()"]');
+    const originalText = finishBtn.innerText;
     finishBtn.innerText = "1. Saving Details..."; 
     finishBtn.disabled = true;
 
@@ -278,51 +292,40 @@ async function completeBooking() {
         checkin: document.getElementById('checkin').value,
         checkout: document.getElementById('checkout').value,
         method: selectedMethod,
-        guests: []
-    };
-
-    document.querySelectorAll('.guest-card').forEach(row => {
-        payload.guests.push({
+        guests: Array.from(document.querySelectorAll('.guest-card')).map(row => ({
             name: row.querySelector('.name').value,
             mobile: row.querySelector('.mobile').value,
             docType: row.querySelector('.doctype').value,
             docNumber: row.querySelector('.docnumber').value
-        });
-    });
-
-    // 2. Prepare Files Data
-    const fileDataArray = [];
-    const fileInputs = document.querySelectorAll('.docfile');
-    for(let input of fileInputs) {
-        if(input.files[0]) {
-            const file = input.files[0];
-            const base64 = await new Promise(res => {
-                const r = new FileReader();
-                r.onload = () => res(r.result.split(',')[1]);
-                r.readAsDataURL(file);
-            });
-            fileDataArray.push({ data: base64, name: file.name, type: file.type });
-        }
-    }
+        }))
+    };
 
     try {
-        // STEP 1: Save Text
-        await saveGuestData(payload);
-        
-        // STEP 2: Save Files (if any)
-        if (fileDataArray.length > 0) {
+        // STEP 1: Save Guest Info
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(payload)
+        });
+
+        // STEP 2: Handle Files directly from the inputs
+        const fileInputs = document.querySelectorAll('.docfile');
+        let hasFiles = Array.from(fileInputs).some(input => input.files.length > 0);
+
+        if (hasFiles) {
             finishBtn.innerText = "2. Uploading ID...";
-            await uploadFiles(fileDataArray);
+            await uploadFiles(fileInputs);
         }
 
         document.getElementById('successMsg').style.display = 'block';
         setTimeout(() => { window.location.href = 'rooms.html'; }, 2000);
+
     } catch (e) {
-        alert("Data sent, but ID upload failed.");
+        console.error("Error:", e);
+        alert("Booking saved, but ID upload failed.");
         window.location.href = 'rooms.html';
     }
 }
-
 </script>
 </body>
 </html>
