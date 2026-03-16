@@ -4,223 +4,77 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Guest Entry - HotelApp</title>
-<link href="https://fonts.cdnfonts.com/css/glacial-indifference-2" rel="stylesheet">
 <style>
-
-    /* 1. Set Font for everything */
-body, input, select, button {
-    font-family: 'Century Gothic', AppleGothic, sans-serif;
-}
-
-/* 2. Style the Dropdown and Remove Arrow */
-select {
-    appearance: none;       /* Removes default Chrome/Safari arrow */
-    -moz-appearance: none;  /* Removes default Firefox arrow */
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ff385c' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center; /* Positions custom red arrow */
-    background-color: #fff;
-    cursor: pointer;
-}
-
-/* 3. Modernizing the Dropdown List (the options) */
-select option {
-    background: #fff;
-    color: #333;
-    padding: 10px;
-}
-
-/* Add a hover effect to inputs/selects for better UI */
-input:hover, select:hover {
-    border-color: var(--primary-red);
-    background-color: #fff;
-}
     :root {
         --primary-red: #ff385c;
         --bg-gray: #f6f7fb;
         --sidebar-width: 220px;
     }
 
-    body {
-        margin: 0;
-        font-family: 'Glacial Indifference', sans-serif;
-        background: var(--bg-gray);
-        color: #333;
+    /* Font and Dropdown UI */
+    body, input, select, button {
+        font-family: 'Century Gothic', AppleGothic, sans-serif;
     }
 
-    /* Sidebar */
-    .sidebar {
-        width: var(--sidebar-width);
-        height: 100vh;
-        background: #fff;
-        border-right: 1px solid #ddd;
-        position: fixed;
-        top: 0;
-        left: 0;
-        display: flex;
-        flex-direction: column;
-    }
+    body { margin: 0; background: var(--bg-gray); color: #333; }
 
-    .sidebar .logo {
-        font-weight: bold;
-        font-size: 20px;
-        padding: 20px;
-        border-bottom: 1px solid #ddd;
-    }
-
-    /* Styling for the success state */
-.upload-btn.success {
-    background-color: #e8f5e9; /* Light Green */
-    color: #2e7d32;            /* Dark Green Text */
-    border-color: #a5d6a7;
-}
-
-    .sidebar ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        flex: 1;
-    }
-
-    .sidebar ul li {
-        padding: 15px 20px;
+    /* Custom Dropdown Styling */
+    select {
+        appearance: none; -webkit-appearance: none; -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ff385c' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-color: #fff;
         cursor: pointer;
-        transition: 0.2s;
     }
 
-    .sidebar ul li:hover {
-        background: var(--primary-red);
-        color: white;
+    .sidebar {
+        width: var(--sidebar-width); height: 100vh; background: #fff;
+        border-right: 1px solid #ddd; position: fixed; top: 0; left: 0;
+        display: flex; flex-direction: column;
     }
 
-    /* Main Content */
-    .main-content {
-        margin-left: var(--sidebar-width);
-        padding: 40px;
+    .sidebar .logo { font-weight: bold; font-size: 20px; padding: 20px; border-bottom: 1px solid #ddd; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; flex: 1; }
+    .sidebar ul li { padding: 15px 20px; cursor: pointer; transition: 0.2s; }
+    .sidebar ul li:hover { background: var(--primary-red); color: white; }
+
+    /* Success State for Upload */
+    .upload-btn.success {
+        background-color: #e8f5e9 !important;
+        color: #2e7d32 !important;
+        border-color: #a5d6a7 !important;
     }
 
+    .main-content { margin-left: var(--sidebar-width); padding: 40px; }
     .container {
-        background: #fff;
-        padding: 30px;
-        border-radius: 15px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        max-width: 1100px; /* Increased to allow wider buttons */
-        margin: auto;
+        background: #fff; padding: 30px; border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05); max-width: 1100px; margin: auto;
     }
 
     h2 { margin-top: 0; color: #111; }
+    .top-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 25px; }
 
-    .top-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 15px;
-        margin-bottom: 25px;
-    }
+    .guest-card { background: #fafafa; border: 1px solid #eee; padding: 20px; border-radius: 10px; margin-bottom: 15px; }
+    .guest-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.2fr 1.2fr 45px; gap: 12px; align-items: start; }
 
-    .guest-card {
-        background: #fafafa;
-        border: 1px solid #eee;
-        padding: 20px;
-        border-radius: 10px;
-        margin-bottom: 15px;
-    }
-
-    /* The grid that controls the widths */
-    .guest-grid {
-        display: grid;
-        /* Widths: Name(Flexible), Mobile(1fr), Type(1fr), ID No(1.2fr), Upload(1.2fr), Delete(45px) */
-        grid-template-columns: 1.5fr 1fr 1fr 1.2fr 1.2fr 45px;
-        gap: 12px;
-        align-items: start;
-    }
-
-    input, select {
-        height: 45px;
-        width: 100%;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 0 12px;
-        font-size: 14px;
-        outline: none;
-        box-sizing: border-box;
-    }
-
+    input, select { height: 45px; width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 0 12px; font-size: 14px; outline: none; box-sizing: border-box; }
     input:focus { border-color: var(--primary-red); }
 
-    .upload-btn {
-        background: #eee;
-        height: 45px;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 12px;
-        font-weight: bold;
-        text-align: center;
-        box-sizing: border-box;
-        border: 1px solid #ddd;
-    }
-
+    .upload-btn { background: #eee; height: 45px; width: 100%; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; text-align: center; box-sizing: border-box; border: 1px solid #ddd; }
     .upload-btn input { display: none; }
-    .filename { font-size: 10px; color: #666; margin-top: 4px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .filename { font-size: 10px; color: #666; margin-top: 4px; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
-    .btn {
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.2s;
-    }
-
+    .btn { border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
     .btn-add { background: #eee; padding: 10px 20px; margin-bottom: 20px; }
-    .btn-save { 
-        background: var(--primary-red); 
-        color: #fff; 
-        padding: 15px 30px; 
-        width: 100%; 
-        font-size: 16px;
-        margin-top: 10px;
-    }
+    .btn-save { background: var(--primary-red); color: #fff; padding: 15px 30px; width: 100%; font-size: 16px; margin-top: 10px; }
+    .btn-delete { background: #ffeded; color: #ff385c; width: 100%; height: 45px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
 
-    .btn-delete {
-        background: #ffeded;
-        color: #ff385c;
-        width: 100%;
-        height: 45px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-    }
-
-    /* Modal Styling */
-    .modal {
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.5);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-    }
-
-    .modal-content {
-        background: #fff;
-        padding: 30px;
-        width: 350px;
-        border-radius: 15px;
-        text-align: center;
-    }
-
+    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-content { background: #fff; padding: 30px; width: 350px; border-radius: 15px; text-align: center; }
     .pay-options { display: flex; gap: 10px; margin: 20px 0; }
-    .pay-btn {
-        flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer;
-    }
+    .pay-btn { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; }
     .pay-btn.active { background: var(--primary-red); color: white; border-color: var(--primary-red); }
-    
     #qrBox img { width: 180px; margin: 15px 0; }
     .success-msg { display: none; color: #28a745; font-weight: bold; margin-top: 15px; }
 </style>
@@ -241,20 +95,10 @@ input:hover, select:hover {
 <div class="main-content">
     <div class="container">
         <h2>Guest Registration</h2>
-
         <div class="top-row">
-            <div>
-                <label style="font-size: 12px; display: block;">Room Number</label>
-                <input id="roomNo" readonly style="background: #f0f0f0;">
-            </div>
-            <div>
-                <label style="font-size: 12px; display: block;">Check-in</label>
-                <input id="checkin" type="date">
-            </div>
-            <div>
-                <label style="font-size: 12px; display: block;">Check-out</label>
-                <input id="checkout" type="date">
-            </div>
+            <div><label style="font-size: 12px;">Room Number</label><input id="roomNo" readonly style="background: #f0f0f0;"></div>
+            <div><label style="font-size: 12px;">Check-in</label><input id="checkin" type="date"></div>
+            <div><label style="font-size: 12px;">Check-out</label><input id="checkout" type="date"></div>
         </div>
 
         <div id="guestContainer">
@@ -269,10 +113,7 @@ input:hover, select:hover {
                     </select>
                     <input class="docnumber" placeholder="ID Number">
                     <div>
-                        <label class="upload-btn">
-                            📁 ID UPLOAD
-                            <input type="file" class="docfile" onchange="updateFileName(this)">
-                        </label>
+                        <label class="upload-btn">📁 ID UPLOAD <input type="file" class="docfile" onchange="updateFileName(this)"></label>
                         <div class="filename">No file chosen</div>
                     </div>
                     <div style="width: 45px;"></div>
@@ -304,137 +145,86 @@ input:hover, select:hover {
 </div>
 
 <script>
-window.addEventListener('DOMContentLoaded', () => {
-    const params = new URLSearchParams(window.location.search);
-    if(params.get('room')) document.getElementById('roomNo').value = params.get('room');
-
-    // Get today's date in local time YYYY-MM-DD
-    const now = new Date();
-    const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
-
-    const checkinInput = document.getElementById('checkin');
-    const checkoutInput = document.getElementById('checkout');
-
-    // 1. Physically block past dates in the calendar picker
-    checkinInput.min = today;
-    checkoutInput.value = today;
-    checkoutInput.min = today;
-
-    // 2. Prevent manual entry or bypass
-    const validateDate = (el) => {
-        if (el.value < today) {
-            alert("Past dates are not allowed.");
-            el.value = today;
-        }
-    };
-
-    checkinInput.addEventListener('change', function() {
-        validateDate(this);
-        // Ensure checkout is never before checkin
-        checkoutInput.min = this.value;
-        if (checkoutInput.value < this.value) {
-            checkoutInput.value = this.value;
-        }
-    });
-
-    checkoutInput.addEventListener('change', function() {
-        validateDate(this);
-    });
-});
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbySGddqfBnyI96p4hohZhStex0PIulYjc4uFgw7WWDFjJz8WHcu4-SVb9-aqP4PFl1-/exec'; 
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz3Zg9fV_6pd4Qu6UrIN5NF9sf-pIJfOY0IYnLHryEale1zKwI8Z0dPt1tFxE8rdZAL/exec'; 
     let selectedMethod = "";
 
     function goPage(url) { window.location.href = url; }
 
+    // UNIFIED ONLOAD LOGIC
     window.onload = () => {
         const params = new URLSearchParams(window.location.search);
-        if(params.get('room')) {
-            document.getElementById('roomNo').value = params.get('room');
-        }
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('checkin').value = today;
+        if(params.get('room')) document.getElementById('roomNo').value = params.get('room');
+
+        const now = new Date();
+        const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+
+        const cin = document.getElementById('checkin');
+        const cout = document.getElementById('checkout');
+
+        cin.min = today;
+        cin.value = today;
+        cout.min = today;
+
+        cin.addEventListener('change', function() {
+            if(this.value < today) { alert("Past dates not allowed"); this.value = today; }
+            cout.min = this.value;
+            if (cout.value < this.value) cout.value = this.value;
+        });
     };
 
- function updateFileName(input) {
-    const label = input.parentElement;
-    const filenameDisplay = label.nextElementSibling;
-    
-    if (input.files.length > 0) {
-        filenameDisplay.innerText = input.files[0].name;
-        label.classList.add('success');
-        // Update label text while keeping the hidden input functional
-        label.childNodes[0].nodeValue = "✅ UPLOADED "; 
-    } else {
-        filenameDisplay.innerText = "No file chosen";
-        label.classList.remove('success');
-        label.childNodes[0].nodeValue = "📁 ID UPLOAD ";
+    function updateFileName(input) {
+        const label = input.parentElement;
+        const filenameDisplay = label.nextElementSibling;
+        if (input.files.length > 0) {
+            filenameDisplay.innerText = input.files[0].name;
+            label.classList.add('success');
+            label.childNodes[0].nodeValue = "✅ UPLOADED "; 
+        } else {
+            filenameDisplay.innerText = "No file chosen";
+            label.classList.remove('success');
+            label.childNodes[0].nodeValue = "📁 ID UPLOAD ";
+        }
     }
-}
 
     function addGuest() {
         const container = document.getElementById('guestContainer');
         if(container.children.length >= 2) return alert("Max 2 guests per room.");
-        
         const row = document.createElement('div');
         row.className = 'guest-card';
         row.innerHTML = `
             <div class="guest-grid">
                 <input class="name" placeholder="Full Name">
                 <input class="mobile" placeholder="Mobile" maxlength="10">
-                <select class="doctype">
-                    <option>AADHAAR</option>
-                    <option>PASSPORT</option>
-                    <option>DRIVING LICENSE</option>
-                </select>
+                <select class="doctype"><option>AADHAAR</option><option>PASSPORT</option><option>DRIVING LICENSE</option></select>
                 <input class="docnumber" placeholder="ID Number">
                 <div>
-                    <label class="upload-btn">
-                        📁 ID UPLOAD
-                        <input type="file" class="docfile" onchange="updateFileName(this)">
-                    </label>
+                    <label class="upload-btn">📁 ID UPLOAD <input type="file" class="docfile" onchange="updateFileName(this)"></label>
                     <div class="filename">No file chosen</div>
                 </div>
                 <button class="btn btn-delete" onclick="this.closest('.guest-card').remove()">✕</button>
-            </div>
-        `;
+            </div>`;
         container.appendChild(row);
     }
 
     function validateAndPay() {
-    // 1. Validate Top Row (Room & Dates)
-    const room = document.getElementById('roomNo').value;
-    const checkin = document.getElementById('checkin').value;
-    const checkout = document.getElementById('checkout').value;
+        const room = document.getElementById('roomNo').value;
+        const cin = document.getElementById('checkin').value;
+        const cout = document.getElementById('checkout').value;
+        if (!room || !cin || !cout) return alert("Fill Room and Dates");
 
-    if (!room || !checkin || !checkout) {
-        alert("Please fill Room Number, Check-in, and Check-out dates.");
-        return;
+        const rows = document.querySelectorAll('.guest-card');
+        let allValid = true;
+        rows.forEach((row, index) => {
+            const name = row.querySelector('.name').value.trim();
+            const mob = row.querySelector('.mobile').value.trim();
+            const file = row.querySelector('.docfile').files.length;
+            if (!name || !mob || file === 0) {
+                alert(`Complete all details for Guest ${index + 1}`);
+                allValid = false;
+            }
+        });
+        if (allValid) document.getElementById('paymentModal').style.display = 'flex';
     }
-
-    // 2. Validate All Guest Cards
-    const rows = document.querySelectorAll('.guest-card');
-    let allValid = true;
-
-    rows.forEach((row, index) => {
-        const name = row.querySelector('.name').value.trim();
-        const mobile = row.querySelector('.mobile').value.trim();
-        const docNum = row.querySelector('.docnumber').value.trim();
-        const fileInput = row.querySelector('.docfile');
-
-        if (!name || !mobile || !docNum || fileInput.files.length === 0) {
-            alert(`Please complete all details and upload ID for Guest ${index + 1}.`);
-            allValid = false;
-        } else if (mobile.length !== 10) {
-            alert(`Mobile number for Guest ${index + 1} must be 10 digits.`);
-            allValid = false;
-        }
-    });
-
-    // 3. Only show modal if validation passed
-    if (allValid) {
-        document.getElementById('paymentModal').style.display = 'flex';
-    }
-}
 
     function closeModal() { document.getElementById('paymentModal').style.display = 'none'; }
 
@@ -446,69 +236,51 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     async function completeBooking() {
-    if(!selectedMethod) return alert("Please select a payment method.");
-    
-    // Helper to format yyyy-mm-dd to dd-mm-yyyy
-    const fmtDate = (dateStr) => {
-        if(!dateStr) return "";
-        const [y, m, d] = dateStr.split('-');
-        return `${d}-${m}-${y}`;
-    };
+        if(!selectedMethod) return alert("Select payment method");
+        const finishBtn = document.querySelector('.modal-content button[onclick="completeBooking()"]');
+        finishBtn.innerText = "Processing..."; finishBtn.disabled = true;
 
-    // Disable button to prevent double submission
-    const finishBtn = document.querySelector('.modal-content button[onclick="completeBooking()"]');
-    finishBtn.innerText = "Processing...";
-    finishBtn.disabled = true;
+        const fmtDate = (dateStr) => {
+            const [y, m, d] = dateStr.split('-');
+            return `${d}-${m}-${y}`;
+        };
 
-    const guests = [];
-    const rows = document.querySelectorAll('.guest-card');
-    
-    for(let row of rows) {
-        const fileInput = row.querySelector('.docfile').files[0];
-        let base64 = "";
-        
-        if(fileInput) {
-            base64 = await new Promise(resolve => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.readAsDataURL(fileInput);
+        const guests = [];
+        for(let row of document.querySelectorAll('.guest-card')) {
+            const fileInput = row.querySelector('.docfile').files[0];
+            let base64 = "";
+            if(fileInput) {
+                base64 = await new Promise(res => {
+                    const reader = new FileReader();
+                    reader.onload = () => res(reader.result.split(',')[1]);
+                    reader.readAsDataURL(fileInput);
+                });
+            }
+            guests.push({
+                name: row.querySelector('.name').value,
+                mobile: row.querySelector('.mobile').value,
+                docType: row.querySelector('.doctype').value,
+                docNumber: row.querySelector('.docnumber').value,
+                fileData: base64, fileName: fileInput.name, fileType: fileInput.type
             });
         }
 
-        guests.push({
-            name: row.querySelector('.name').value,
-            mobile: row.querySelector('.mobile').value,
-            docType: row.querySelector('.doctype').value,
-            docNumber: row.querySelector('.docnumber').value,
-            fileData: base64,
-            fileName: fileInput ? fileInput.name : "",
-            fileType: fileInput ? fileInput.type : ""
+        const payload = {
+            room: document.getElementById('roomNo').value,
+            checkin: fmtDate(document.getElementById('checkin').value),
+            checkout: fmtDate(document.getElementById('checkout').value),
+            method: selectedMethod, guests: guests
+        };
+
+        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
+        .then(() => {
+            document.getElementById('successMsg').style.display = 'block';
+            setTimeout(() => window.location.href = 'rooms.html', 2000);
+        }).catch(() => {
+            alert("Error saving data");
+            finishBtn.disabled = false; finishBtn.innerText = "FINALIZE BOOKING";
         });
     }
-
-    const payload = {
-        room: document.getElementById('roomNo').value,
-        // Reformatting dates here before sending
-        checkin: fmtDate(document.getElementById('checkin').value),
-        checkout: fmtDate(document.getElementById('checkout').value),
-        method: selectedMethod,
-        guests: guests
-    };
-
-    fetch(SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors', // Essential for Google Apps Script cross-domain
-        body: JSON.stringify(payload)
-    }).then(() => {
-        document.getElementById('successMsg').style.display = 'block';
-        setTimeout(() => window.location.href = 'rooms.html', 2000);
-    }).catch(err => {
-        alert("Error saving to sheet.");
-        finishBtn.disabled = false;
-        finishBtn.innerText = "FINALIZE BOOKING";
-    });
-}
 </script>
-
 </body>
 </html>
