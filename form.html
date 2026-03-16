@@ -186,7 +186,7 @@
             <div class="guest-grid">
                 <input class="name" placeholder="Full Name">
                 <input class="mobile" placeholder="Mobile" maxlength="10">
-                <select class="doctype"><option>AADHAAR</option><option>PASSPORT</option><option>DRIVING LICENSE</option></select>
+                <select clas="doctype"><option>AADHAAR</option><option>PASSPORT</option><option>DRIVING LICENSE</option></select>
                 <input class="docnumber" placeholder="ID Number">
                 <div>
                     <label class="upload-btn">📁 ID UPLOAD <input type="file" class="docfile" onchange="updateFileName(this)"></label>
@@ -215,27 +215,45 @@
 
     // Step 1: Logic to Upload Files as Byte Arrays (Stable)
     async function uploadFiles(fileInputs) {
-        for (let input of fileInputs) {
-            if (input.files[0]) {
-                const file = input.files[0];
-                const fr = new FileReader();
-                
-                await new Promise(resolve => {
-                    fr.readAsArrayBuffer(file);
-                    fr.onload = async (f) => {
-                        const qs = new URLSearchParams({ filename: file.name, mimeType: file.type });
-                        await fetch(`${SCRIPT_URL}?${qs}`, {
-                            method: "POST",
-                            mode: "no-cors",
-                            body: JSON.stringify([...new Int8Array(f.target.result)]),
-                        });
-                        resolve();
-                    };
-                });
-            }
-        }
-    }
 
+for (let input of fileInputs) {
+
+if (input.files[0]) {
+
+const file = input.files[0];
+
+const reader = new FileReader();
+
+await new Promise(resolve => {
+
+reader.readAsDataURL(file);
+
+reader.onload = async () => {
+
+const base64 = reader.result.split(',')[1];
+
+await fetch(SCRIPT_URL, {
+method: "POST",
+headers: { "Content-Type": "application/json" },
+body: JSON.stringify({
+action: "upload",
+fileData: base64,
+fileName: file.name,
+fileType: file.type
+})
+});
+
+resolve();
+
+};
+
+});
+
+}
+
+}
+
+}
     // Step 2: Logic to Save Data then trigger Files
     async function completeBooking() {
         if (!selectedMethod) return alert("Select payment method");
@@ -283,6 +301,9 @@
             window.location.href = 'rooms.html';
         }
     }
+var lastRow = sheet.getLastRow();
+    
 </script>
+    
 </body>
 </html>
