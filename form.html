@@ -316,10 +316,40 @@
     }
 
     function validateAndPay() {
-        const room = document.getElementById('roomNo').value;
-        if(!room) return alert("Please select a room first.");
+    // 1. Validate Top Row (Room & Dates)
+    const room = document.getElementById('roomNo').value;
+    const checkin = document.getElementById('checkin').value;
+    const checkout = document.getElementById('checkout').value;
+
+    if (!room || !checkin || !checkout) {
+        alert("Please fill Room Number, Check-in, and Check-out dates.");
+        return;
+    }
+
+    // 2. Validate All Guest Cards
+    const rows = document.querySelectorAll('.guest-card');
+    let allValid = true;
+
+    rows.forEach((row, index) => {
+        const name = row.querySelector('.name').value.trim();
+        const mobile = row.querySelector('.mobile').value.trim();
+        const docNum = row.querySelector('.docnumber').value.trim();
+        const fileInput = row.querySelector('.docfile');
+
+        if (!name || !mobile || !docNum || fileInput.files.length === 0) {
+            alert(`Please complete all details and upload ID for Guest ${index + 1}.`);
+            allValid = false;
+        } else if (mobile.length !== 10) {
+            alert(`Mobile number for Guest ${index + 1} must be 10 digits.`);
+            allValid = false;
+        }
+    });
+
+    // 3. Only show modal if validation passed
+    if (allValid) {
         document.getElementById('paymentModal').style.display = 'flex';
     }
+}
 
     function closeModal() { document.getElementById('paymentModal').style.display = 'none'; }
 
