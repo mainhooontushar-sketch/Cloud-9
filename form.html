@@ -214,47 +214,89 @@
         document.getElementById('qrBox').style.display = (method === 'UPI') ? 'block' : 'none';
     }
 
-    async function completeBooking() {
-        if (!selectedMethod) return alert("Please select a payment method.");
+  // FUNCTION A: Only sends text
+async function saveGuestData(payload) {
+    await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: JSON.stringify(payload)
+    });
+}
 
-        const finishBtn = document.querySelector('.modal-content button[onclick="completeBooking()"]');
-        finishBtn.innerText = "Saving Data...";
-        finishBtn.disabled = true;
-
-        const guests = [];
-        document.querySelectorAll('.guest-card').forEach(row => {
-            guests.push({
-                name: row.querySelector('.name').value,
-                mobile: row.querySelector('.mobile').value,
-                docType: row.querySelector('.doctype').value,
-                docNumber: row.querySelector('.docnumber').value
-            });
-        });
-
-        const payload = {
-            room: document.getElementById('roomNo').value,
-            checkin: document.getElementById('checkin').value,
-            checkout: document.getElementById('checkout').value,
-            method: selectedMethod,
-            guests: guests
-        };
-
-        // FIXED: Using no-cors and removing JSON headers to bypass security errors
-        fetch(SCRIPT_URL, {
+// FUNCTION B: Only sends files
+async function uploadFiles(fileDataArray) {
+    for (let file of fileDataArray) {
+        await fetch(SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
-            body: JSON.stringify(payload)
-        })
-        .then(() => {
-            document.getElementById('successMsg').style.display = 'block';
-            setTimeout(() => { window.location.href = 'rooms.html'; }, 2000);
-        })
-        .catch(err => {
-            alert("Connection error, but data may have been sent.");
-            finishBtn.disabled = false;
-            finishBtn.innerText = "FINALIZE BOOKING";
+            body: JSON.stringify({
+                action: "upload",
+                fileData: file.data,
+                fileName: file.name,
+                fileType: file.type
+            })
         });
     }
+}
+
+// FUNCTION C: The main trigger
+async function completeBooking() {
+    if (!selectedMethod) return alert("Select payment method");
+    
+    const finishBtn = document.querySelector('.modal-content button[onclick="completeBooking()"]');
+    finishBtn.innerText = "1. Saving Details..."; 
+    finishBtn.disabled = true;
+
+    // 1. Prepare Text Data
+    const payload = {
+        room: document.getElementById('roomNo').value,
+        checkin: document.getElementById('checkin').value,
+        checkout: document.getElementById('checkout').value,
+        method: selectedMethod,
+        guests: []
+    };
+
+    document.querySelectorAll('.guest-card').forEach(row => {
+        payload.guests.push({
+            name: row.querySelector('.name').value,
+            mobile: row.querySelector('.mobile').value,
+            docType: row.querySelector('.doctype').value,
+            docNumber: row.querySelector('.docnumber').value
+        });
+    });
+
+    // 2. Prepare Files Data
+    const fileDataArray = [];
+    const fileInputs = document.querySelectorAll('.docfile');
+    for(let input of fileInputs) {
+        if(input.files[0]) {
+            const file = input.files[0];
+            const base64 = await new Promise(res => {
+                const r = new FileReader();
+                r.onload = () => res(r.result.split(',')[1]);
+                r.readAsDataURL(file);
+            });
+            fileDataArray.push({ data: base64, name: file.name, type: file.type });
+        }
+    }
+
+    try {
+        // STEP 1: Save Text
+        await saveGuestData(payload);
+        
+        // STEP 2: Save Files (if any)
+        if (fileDataArray.length > 0) {
+            finishBtn.innerText = "2. Uploading ID...";
+            await uploadFiles(fileDataArray);
+        }
+
+        document.getElementById('successMsg').style.display = 'block';
+        setTimeout(() => { window.location.href = 'rooms.html'; }, 2000);
+    } catch (e) {
+        alert("Data sent, but ID upload failed.");
+        window.location.href = 'rooms.html';
+    }
+}
 </script>
 </body>
 </html>
