@@ -4,296 +4,569 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Guest Entry - HotelApp</title>
+
 <style>
-    :root {
-        --primary-red: #ff385c;
-        --bg-gray: #f6f7fb;
-        --sidebar-width: 220px;
-    }
+:root{
+--primary-red:#ff385c;
+--bg-gray:#f6f7fb;
+--sidebar-width:220px;
+}
 
-    /* Font and Dropdown UI */
-    body, input, select, button {
-        font-family: 'Century Gothic', AppleGothic, sans-serif;
-    }
+body,input,select,button{
+font-family:'Century Gothic',AppleGothic,sans-serif;
+}
 
-    body { margin: 0; background: var(--bg-gray); color: #333; }
+body{
+margin:0;
+background:var(--bg-gray);
+color:#333;
+}
 
-    /* Custom Dropdown Styling */
-    select {
-        appearance: none; -webkit-appearance: none; -moz-appearance: none;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ff385c' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 12px center;
-        background-color: #fff;
-        cursor: pointer;
-    }
+select{
+appearance:none;
+-webkit-appearance:none;
+-moz-appearance:none;
 
-    .sidebar {
-        width: var(--sidebar-width); height: 100vh; background: #fff;
-        border-right: 1px solid #ddd; position: fixed; top: 0; left: 0;
-        display: flex; flex-direction: column;
-    }
+background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ff385c' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
 
-    .sidebar .logo { font-weight: bold; font-size: 20px; padding: 20px; border-bottom: 1px solid #ddd; }
-    .sidebar ul { list-style: none; padding: 0; margin: 0; flex: 1; }
-    .sidebar ul li { padding: 15px 20px; cursor: pointer; transition: 0.2s; }
-    .sidebar ul li:hover { background: var(--primary-red); color: white; }
+background-repeat:no-repeat;
+background-position:right 12px center;
+background-color:#fff;
+cursor:pointer;
+}
 
-    /* Success State for Upload */
-    .upload-btn.success {
-        background-color: #e8f5e9 !important;
-        color: #2e7d32 !important;
-        border-color: #a5d6a7 !important;
-    }
+.sidebar{
+width:var(--sidebar-width);
+height:100vh;
+background:#fff;
+border-right:1px solid #ddd;
+position:fixed;
+top:0;
+left:0;
+display:flex;
+flex-direction:column;
+}
 
-    .main-content { margin-left: var(--sidebar-width); padding: 40px; }
-    .container {
-        background: #fff; padding: 30px; border-radius: 15px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05); max-width: 1100px; margin: auto;
-    }
+.sidebar .logo{
+font-weight:bold;
+font-size:20px;
+padding:20px;
+border-bottom:1px solid #ddd;
+}
 
-    h2 { margin-top: 0; color: #111; }
-    .top-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+.sidebar ul{
+list-style:none;
+padding:0;
+margin:0;
+flex:1;
+}
 
-    .guest-card { background: #fafafa; border: 1px solid #eee; padding: 20px; border-radius: 10px; margin-bottom: 15px; }
-    .guest-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.2fr 1.2fr 45px; gap: 12px; align-items: start; }
+.sidebar ul li{
+padding:15px 20px;
+cursor:pointer;
+transition:.2s;
+}
 
-    input, select { height: 45px; width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 0 12px; font-size: 14px; outline: none; box-sizing: border-box; }
-    input:focus { border-color: var(--primary-red); }
+.sidebar ul li:hover{
+background:var(--primary-red);
+color:white;
+}
 
-    .upload-btn { background: #eee; height: 45px; width: 100%; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; text-align: center; box-sizing: border-box; border: 1px solid #ddd; }
-    .upload-btn input { display: none; }
-    .filename { font-size: 10px; color: #666; margin-top: 4px; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.upload-btn.success{
+background-color:#e8f5e9!important;
+color:#2e7d32!important;
+border-color:#a5d6a7!important;
+}
 
-    .btn { border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-    .btn-add { background: #eee; padding: 10px 20px; margin-bottom: 20px; }
-    .btn-save { background: var(--primary-red); color: #fff; padding: 15px 30px; width: 100%; font-size: 16px; margin-top: 10px; }
-    .btn-delete { background: #ffeded; color: #ff385c; width: 100%; height: 45px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.main-content{
+margin-left:var(--sidebar-width);
+padding:40px;
+}
 
-    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
-    .modal-content { background: #fff; padding: 30px; width: 350px; border-radius: 15px; text-align: center; }
-    .pay-options { display: flex; gap: 10px; margin: 20px 0; }
-    .pay-btn { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; }
-    .pay-btn.active { background: var(--primary-red); color: white; border-color: var(--primary-red); }
-    #qrBox img { width: 180px; margin: 15px 0; }
-    .success-msg { display: none; color: #28a745; font-weight: bold; margin-top: 15px; }
+.container{
+background:#fff;
+padding:30px;
+border-radius:15px;
+box-shadow:0 4px 12px rgba(0,0,0,.05);
+max-width:1100px;
+margin:auto;
+}
+
+h2{
+margin-top:0;
+color:#111;
+}
+
+.top-row{
+display:grid;
+grid-template-columns:1fr 1fr 1fr;
+gap:15px;
+margin-bottom:25px;
+}
+
+.guest-card{
+background:#fafafa;
+border:1px solid #eee;
+padding:20px;
+border-radius:10px;
+margin-bottom:15px;
+}
+
+.guest-grid{
+display:grid;
+grid-template-columns:1.5fr 1fr 1fr 1.2fr 1.2fr 45px;
+gap:12px;
+align-items:start;
+}
+
+input,select{
+height:45px;
+width:100%;
+border:1px solid #ddd;
+border-radius:8px;
+padding:0 12px;
+font-size:14px;
+outline:none;
+box-sizing:border-box;
+}
+
+input:focus{
+border-color:var(--primary-red);
+}
+
+.upload-btn{
+background:#eee;
+height:45px;
+width:100%;
+display:flex;
+align-items:center;
+justify-content:center;
+border-radius:8px;
+cursor:pointer;
+font-size:12px;
+font-weight:bold;
+text-align:center;
+box-sizing:border-box;
+border:1px solid #ddd;
+}
+
+.upload-btn input{
+display:none;
+}
+
+.filename{
+font-size:10px;
+color:#666;
+margin-top:4px;
+text-align:center;
+overflow:hidden;
+white-space:nowrap;
+text-overflow:ellipsis;
+}
+
+.btn{
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+transition:.2s;
+}
+
+.btn-add{
+background:#eee;
+padding:10px 20px;
+margin-bottom:20px;
+}
+
+.btn-save{
+background:var(--primary-red);
+color:#fff;
+padding:15px 30px;
+width:100%;
+font-size:16px;
+margin-top:10px;
+}
+
+.btn-delete{
+background:#ffeded;
+color:#ff385c;
+width:100%;
+height:45px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:18px;
+}
+
+.modal{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.5);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:1000;
+}
+
+.modal-content{
+background:#fff;
+padding:30px;
+width:350px;
+border-radius:15px;
+text-align:center;
+}
+
+.pay-options{
+display:flex;
+gap:10px;
+margin:20px 0;
+}
+
+.pay-btn{
+flex:1;
+padding:12px;
+border:1px solid #ddd;
+border-radius:8px;
+cursor:pointer;
+}
+
+.pay-btn.active{
+background:var(--primary-red);
+color:white;
+border-color:var(--primary-red);
+}
+
+#qrBox img{
+width:180px;
+margin:15px 0;
+}
+
+.success-msg{
+display:none;
+color:#28a745;
+font-weight:bold;
+margin-top:15px;
+}
 </style>
 </head>
+
 <body>
 
 <div class="sidebar">
-    <div class="logo">HotelApp</div>
-    <ul>
-        <li onclick="goPage('index.html')">🏠 Dashboard</li>
-        <li onclick="goPage('rooms.html')">🛏️ Rooms</li>
-        <li onclick="goPage('form.html')">👤 Guests</li>
-        <li onclick="goPage('payments.html')">💳 Payments</li>
-        <li onclick="goPage('settings.html')">⚙️ Settings</li>
-    </ul>
+<div class="logo">HotelApp</div>
+<ul>
+<li onclick="goPage('index.html')">🏠 Dashboard</li>
+<li onclick="goPage('rooms.html')">🛏️ Rooms</li>
+<li onclick="goPage('form.html')">👤 Guests</li>
+<li onclick="goPage('payments.html')">💳 Payments</li>
+<li onclick="goPage('settings.html')">⚙️ Settings</li>
+</ul>
 </div>
 
 <div class="main-content">
-    <div class="container">
-        <h2>Guest Registration</h2>
-        <div class="top-row">
-            <div><label style="font-size: 12px;">Room Number</label><input id="roomNo" readonly style="background: #f0f0f0;"></div>
-            <div><label style="font-size: 12px;">Check-in</label><input id="checkin" type="date"></div>
-            <div><label style="font-size: 12px;">Check-out</label><input id="checkout" type="date"></div>
-        </div>
 
-        <div id="guestContainer">
-            <div class="guest-card">
-                <div class="guest-grid">
-                    <input class="name" placeholder="Full Name">
-                    <input class="mobile" placeholder="Mobile" maxlength="10">
-                    <select class="doctype">
-                        <option>AADHAAR</option>
-                        <option>PASSPORT</option>
-                        <option>DRIVING LICENSE</option>
-                    </select>
-                    <input class="docnumber" placeholder="ID Number">
-                    <div>
-                        <label class="upload-btn">📁 ID UPLOAD <input type="file" class="docfile" onchange="updateFileName(this)"></label>
-                        <div class="filename">No file chosen</div>
-                    </div>
-                    <div style="width: 45px;"></div>
-                </div>
-            </div>
-        </div>
+<div class="container">
 
-        <button class="btn btn-add" onclick="addGuest()">+ Add Extra Guest</button>
-        <button class="btn btn-save" onclick="validateAndPay()">PROCEED TO PAYMENT</button>
-    </div>
+<h2>Guest Registration</h2>
+
+<div class="top-row">
+
+<div>
+<label style="font-size:12px;">Room Number</label>
+<input id="roomNo" readonly style="background:#f0f0f0;">
+</div>
+
+<div>
+<label style="font-size:12px;">Check-in</label>
+<input id="checkin" type="date">
+</div>
+
+<div>
+<label style="font-size:12px;">Check-out</label>
+<input id="checkout" type="date">
+</div>
+
+</div>
+
+<div id="guestContainer">
+
+<div class="guest-card">
+
+<div class="guest-grid">
+
+<input class="name" placeholder="Full Name">
+
+<input class="mobile" placeholder="Mobile" maxlength="10">
+
+<select class="doctype">
+<option>AADHAAR</option>
+<option>PASSPORT</option>
+<option>DRIVING LICENSE</option>
+</select>
+
+<input class="docnumber" placeholder="ID Number">
+
+<div>
+<label class="upload-btn">
+📁 ID UPLOAD
+<input type="file" class="docfile" onchange="updateFileName(this)">
+</label>
+<div class="filename">No file chosen</div>
+</div>
+
+<div style="width:45px;"></div>
+
+</div>
+</div>
+</div>
+
+<button class="btn btn-add" onclick="addGuest()">+ Add Extra Guest</button>
+
+<button class="btn btn-save" onclick="validateAndPay()">PROCEED TO PAYMENT</button>
+
+</div>
 </div>
 
 <div class="modal" id="paymentModal">
-    <div class="modal-content">
-        <h3>Payment Method</h3>
-        <div class="pay-options">
-            <div class="pay-btn" onclick="selectPay(this, 'Cash')">Cash</div>
-            <div class="pay-btn" onclick="selectPay(this, 'Card')">Card</div>
-            <div class="pay-btn" onclick="selectPay(this, 'UPI')">UPI</div>
-        </div>
-        <div id="qrBox" style="display:none;">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay">
-            <p style="font-size:12px;">Scan to Pay</p>
-        </div>
-        <button class="btn btn-save" style="margin-top:10px;" onclick="completeBooking()">FINALIZE BOOKING</button>
-        <button class="btn btn-add" style="width:100%; margin-top:10px;" onclick="closeModal()">Cancel</button>
-        <div class="success-msg" id="successMsg">🎉 Booking Successful!</div>
-    </div>
+
+<div class="modal-content">
+
+<h3>Payment Method</h3>
+
+<div class="pay-options">
+
+<div class="pay-btn" onclick="selectPay(this,'Cash')">Cash</div>
+<div class="pay-btn" onclick="selectPay(this,'Card')">Card</div>
+<div class="pay-btn" onclick="selectPay(this,'UPI')">UPI</div>
+
+</div>
+
+<div id="qrBox" style="display:none;">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay">
+<p style="font-size:12px;">Scan to Pay</p>
+</div>
+
+<button class="btn btn-save" onclick="completeBooking()">FINALIZE BOOKING</button>
+
+<button class="btn btn-add" style="width:100%;margin-top:10px;" onclick="closeModal()">Cancel</button>
+
+<div class="success-msg" id="successMsg">🎉 Booking Successful!</div>
+
+</div>
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwlO2Og39ZohBdQiz7Jy5F5H90yrFQM52P4cUz6hEbGrh5e0caLE91s7Um_NmOq0n63/exec'; 
-    let selectedMethod = "";
 
-    function goPage(url) { window.location.href = url; }
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbzdjOb4-rNONK6MCCBuISoMT6iTQJV0XPcU_J4tU0eTgSXzDB0Ut4wJ-KabxHlhbo6A/exec";
 
-    // UNIFIED ONLOAD LOGIC
-    window.onload = () => {
-        const params = new URLSearchParams(window.location.search);
-        if(params.get('room')) document.getElementById('roomNo').value = params.get('room');
+let selectedMethod="";
 
-        const now = new Date();
-        const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+function goPage(url){
+window.location.href=url;
+}
 
-        const cin = document.getElementById('checkin');
-        const cout = document.getElementById('checkout');
+window.onload=()=>{
 
-        cin.min = today;
-        cin.value = today;
-        cout.min = today;
+const params=new URLSearchParams(window.location.search);
 
-        cin.addEventListener('change', function() {
-            if(this.value < today) { alert("Past dates not allowed"); this.value = today; }
-            cout.min = this.value;
-            if (cout.value < this.value) cout.value = this.value;
-        });
-    };
+if(params.get("room")){
+document.getElementById("roomNo").value=params.get("room");
+}
 
-    function updateFileName(input) {
-        const label = input.parentElement;
-        const filenameDisplay = label.nextElementSibling;
-        if (input.files.length > 0) {
-            filenameDisplay.innerText = input.files[0].name;
-            label.classList.add('success');
-            label.childNodes[0].nodeValue = "✅ UPLOADED "; 
-        } else {
-            filenameDisplay.innerText = "No file chosen";
-            label.classList.remove('success');
-            label.childNodes[0].nodeValue = "📁 ID UPLOAD ";
-        }
-    }
+const today=new Date().toISOString().split("T")[0];
 
-    function addGuest() {
-        const container = document.getElementById('guestContainer');
-        if(container.children.length >= 2) return alert("Max 2 guests per room.");
-        const row = document.createElement('div');
-        row.className = 'guest-card';
-        row.innerHTML = `
-            <div class="guest-grid">
-                <input class="name" placeholder="Full Name">
-                <input class="mobile" placeholder="Mobile" maxlength="10">
-                <select class="doctype"><option>AADHAAR</option><option>PASSPORT</option><option>DRIVING LICENSE</option></select>
-                <input class="docnumber" placeholder="ID Number">
-                <div>
-                    <label class="upload-btn">📁 ID UPLOAD <input type="file" class="docfile" onchange="updateFileName(this)"></label>
-                    <div class="filename">No file chosen</div>
-                </div>
-                <button class="btn btn-delete" onclick="this.closest('.guest-card').remove()">✕</button>
-            </div>`;
-        container.appendChild(row);
-    }
+const cin=document.getElementById("checkin");
+const cout=document.getElementById("checkout");
 
-    function validateAndPay() {
-        const room = document.getElementById('roomNo').value;
-        const cin = document.getElementById('checkin').value;
-        const cout = document.getElementById('checkout').value;
-        if (!room || !cin || !cout) return alert("Fill Room and Dates");
+cin.value=today;
+cin.min=today;
+cout.min=today;
 
-        const rows = document.querySelectorAll('.guest-card');
-        let allValid = true;
-        rows.forEach((row, index) => {
-            const name = row.querySelector('.name').value.trim();
-            const mob = row.querySelector('.mobile').value.trim();
-            const file = row.querySelector('.docfile').files.length;
-            if (!name || !mob || file === 0) {
-                alert(`Complete all details for Guest ${index + 1}`);
-                allValid = false;
-            }
-        });
-        if (allValid) document.getElementById('paymentModal').style.display = 'flex';
-    }
-
-    function closeModal() { document.getElementById('paymentModal').style.display = 'none'; }
-
-    function selectPay(el, method) {
-        document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('active'));
-        el.classList.add('active');
-        selectedMethod = method;
-        document.getElementById('qrBox').style.display = (method === 'UPI') ? 'block' : 'none';
-    }
-
-    async function completeBooking() {
-        if(!selectedMethod) return alert("Select payment method");
-        const finishBtn = document.querySelector('.modal-content button[onclick="completeBooking()"]');
-        finishBtn.innerText = "Processing..."; finishBtn.disabled = true;
-
-        const fmtDate = (dateStr) => {
-            const [y, m, d] = dateStr.split('-');
-            return `${d}-${m}-${y}`;
-        };
-
-        const guests = [];
-        for(let row of document.querySelectorAll('.guest-card')) {
-            const fileInput = row.querySelector('.docfile').files[0];
-            let base64 = "";
-            if(fileInput) {
-                base64 = await new Promise(res => {
-                    const reader = new FileReader();
-                    reader.onload = () => res(reader.result.split(',')[1]);
-                    reader.readAsDataURL(fileInput);
-                });
-            }
-            guests.push({
-    name: row.querySelector('.name').value,
-    mobile: row.querySelector('.mobile').value,
-    docType: row.querySelector('.doctype').value,
-    docNumber: row.querySelector('.docnumber').value,
-    fileData: base64,
-    fileName: fileInput ? fileInput.name : "",
-    fileType: fileInput ? fileInput.type : ""
+cin.addEventListener("change",()=>{
+cout.min=cin.value;
 });
-        }
 
-        const payload = {
-            room: document.getElementById('roomNo').value,
-            checkin: fmtDate(document.getElementById('checkin').value),
-            checkout: fmtDate(document.getElementById('checkout').value),
-            method: selectedMethod, guests: guests
-        };
-fetch(SCRIPT_URL, {
-    method: "POST",
-    mode: "cors",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-})
-.then(res => res.json())
-.then(data => {
-    console.log(data);
-    document.getElementById('successMsg').style.display = 'block';
-    setTimeout(() => window.location.href = 'rooms.html', 2000);
-})
-.catch(err => {
-    console.error(err);
-    alert("Error saving data");
-    finishBtn.disabled = false;
-    finishBtn.innerText = "FINALIZE BOOKING";
+};
+
+function updateFileName(input){
+
+const label=input.parentElement;
+const nameDiv=label.nextElementSibling;
+
+if(input.files.length){
+nameDiv.innerText=input.files[0].name;
+label.classList.add("success");
+label.childNodes[0].nodeValue="✅ UPLOADED ";
+}else{
+nameDiv.innerText="No file chosen";
+label.classList.remove("success");
+label.childNodes[0].nodeValue="📁 ID UPLOAD ";
+}
+
+}
+
+function addGuest(){
+
+const container=document.getElementById("guestContainer");
+
+if(container.children.length>=2){
+alert("Max 2 guests per room.");
+return;
+}
+
+const row=document.createElement("div");
+
+row.className="guest-card";
+
+row.innerHTML=`<div class="guest-grid">
+
+<input class="name" placeholder="Full Name">
+
+<input class="mobile" placeholder="Mobile" maxlength="10">
+
+<select class="doctype">
+<option>AADHAAR</option>
+<option>PASSPORT</option>
+<option>DRIVING LICENSE</option>
+</select>
+
+<input class="docnumber" placeholder="ID Number">
+
+<div>
+<label class="upload-btn">📁 ID UPLOAD
+<input type="file" class="docfile" onchange="updateFileName(this)">
+</label>
+<div class="filename">No file chosen</div>
+</div>
+
+<button class="btn btn-delete" onclick="this.closest('.guest-card').remove()">✕</button>
+
+</div>`;
+
+container.appendChild(row);
+
+}
+
+function validateAndPay(){
+
+const rows=document.querySelectorAll(".guest-card");
+
+for(let i=0;i<rows.length;i++){
+
+const name=rows[i].querySelector(".name").value.trim();
+const mobile=rows[i].querySelector(".mobile").value.trim();
+const file=rows[i].querySelector(".docfile").files.length;
+
+if(!name||!mobile||!file){
+alert("Complete details for Guest "+(i+1));
+return;
+}
+
+}
+
+document.getElementById("paymentModal").style.display="flex";
+
+}
+
+function closeModal(){
+document.getElementById("paymentModal").style.display="none";
+}
+
+function selectPay(el,method){
+
+document.querySelectorAll(".pay-btn").forEach(btn=>{
+btn.classList.remove("active");
 });
-    }
+
+el.classList.add("active");
+
+selectedMethod=method;
+
+document.getElementById("qrBox").style.display=method==="UPI"?"block":"none";
+
+}
+
+async function fileToBase64(file){
+
+return new Promise((resolve)=>{
+
+const reader=new FileReader();
+
+reader.onload=()=>{
+resolve(reader.result.split(",")[1]);
+};
+
+reader.readAsDataURL(file);
+
+});
+
+}
+
+async function completeBooking(){
+
+if(!selectedMethod){
+alert("Select payment method");
+return;
+}
+
+const rows=document.querySelectorAll(".guest-card");
+
+const guests=[];
+
+for(const row of rows){
+
+const file=row.querySelector(".docfile").files[0];
+
+const base64=await fileToBase64(file);
+
+guests.push({
+name:row.querySelector(".name").value,
+mobile:row.querySelector(".mobile").value,
+docType:row.querySelector(".doctype").value,
+docNumber:row.querySelector(".docnumber").value,
+fileData:base64,
+fileName:file.name,
+fileType:file.type
+});
+
+}
+
+const payload={
+room:document.getElementById("roomNo").value,
+checkin:document.getElementById("checkin").value,
+checkout:document.getElementById("checkout").value,
+method:selectedMethod,
+guests:guests
+};
+
+try{
+
+const res=await fetch(SCRIPT_URL,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(payload)
+});
+
+await res.json();
+
+document.getElementById("successMsg").style.display="block";
+
+setTimeout(()=>{
+window.location.href="rooms.html";
+},2000);
+
+}catch(err){
+
+alert("Error saving data");
+
+}
+
+}
+
 </script>
+
 </body>
 </html>
