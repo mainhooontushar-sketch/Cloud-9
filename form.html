@@ -69,6 +69,13 @@ input:hover, select:hover {
         border-bottom: 1px solid #ddd;
     }
 
+    /* Styling for the success state */
+.upload-btn.success {
+    background-color: #e8f5e9; /* Light Green */
+    color: #2e7d32;            /* Dark Green Text */
+    border-color: #a5d6a7;
+}
+
     .sidebar ul {
         list-style: none;
         padding: 0;
@@ -297,31 +304,43 @@ input:hover, select:hover {
 </div>
 
 <script>
-
-    window.onload = () => {
+window.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
     if(params.get('room')) document.getElementById('roomNo').value = params.get('room');
 
-    // Get today's date in YYYY-MM-DD format
-    const today = new Date().toISOString().split('T')[0];
+    // Get today's date in local time YYYY-MM-DD
+    const now = new Date();
+    const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+
     const checkinInput = document.getElementById('checkin');
     const checkoutInput = document.getElementById('checkout');
 
-    // Set minimum date for both to today
+    // 1. Physically block past dates in the calendar picker
     checkinInput.min = today;
+    checkoutInput.value = today;
     checkoutInput.min = today;
-    
-    // Set default checkin to today
-    checkinInput.value = today;
 
-    // Update checkout minimum whenever checkin changes
-    checkinInput.addEventListener('change', () => {
-        checkoutInput.min = checkinInput.value;
-        if (checkoutInput.value && checkoutInput.value < checkinInput.value) {
-            checkoutInput.value = checkinInput.value;
+    // 2. Prevent manual entry or bypass
+    const validateDate = (el) => {
+        if (el.value < today) {
+            alert("Past dates are not allowed.");
+            el.value = today;
+        }
+    };
+
+    checkinInput.addEventListener('change', function() {
+        validateDate(this);
+        // Ensure checkout is never before checkin
+        checkoutInput.min = this.value;
+        if (checkoutInput.value < this.value) {
+            checkoutInput.value = this.value;
         }
     });
-};
+
+    checkoutInput.addEventListener('change', function() {
+        validateDate(this);
+    });
+});
     const SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE'; 
     let selectedMethod = "";
 
@@ -337,9 +356,23 @@ input:hover, select:hover {
     };
 
     function updateFileName(input) {
-        const name = input.files[0] ? input.files[0].name : "No file chosen";
-        input.parentElement.nextElementSibling.innerText = name;
+    const label = input.parentElement;
+    const filenameDisplay = label.nextElementSibling;
+    
+    if (input.files.length > 0) {
+        const name = input.files[0].name;
+        filenameDisplay.innerText = name;
+        
+        // Change button UI
+        label.classList.add('success');
+        // We use a span or just text; let's update the innerText but keep the input
+        label.innerHTML = `✅ UPLOADED <input type="file" class="docfile" onchange="updateFileName(this)">`;
+    } else {
+        filenameDisplay.innerText = "No file chosen";
+        label.classList.remove('success');
+        label.innerHTML = `📁 ID UPLOAD <input type="file" class="docfile" onchange="updateFileName(this)">`;
     }
+}
 
     function addGuest() {
         const container = document.getElementById('guestContainer');
