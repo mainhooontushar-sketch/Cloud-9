@@ -3,19 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rooms</title>
+<title>Room Management</title>
 <link href="https://fonts.cdnfonts.com/css/glacial-indifference-2" rel="stylesheet">
 <style>
-body { margin:0; font-family:'Glacial Indifference', sans-serif; background:#f6f7fb; }
-.sidebar { width:220px; height:100vh; background:#fff; border-right:1px solid #ddd; position:fixed; top:0; left:0; display:flex; flex-direction:column;}
-.sidebar .logo { font-weight:bold; font-size:20px; padding:20px; border-bottom:1px solid #ddd; }
-.sidebar ul { list-style:none; padding:0; margin:0; flex:1; }
-.sidebar ul li { padding:15px 20px; cursor:pointer; transition:0.2s;}
-.sidebar ul li:hover { background:#f2f2f2; }
-.main-content { margin-left:220px; padding:30px; }
-.rooms-container { display:flex; flex-wrap:wrap; gap:20px; margin-top:20px; }
-.room-box { width:120px; height:120px; background:#fff; border-radius:12px; border:1px solid #ddd; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer; transition:0.2s; }
-.room-box:hover { transform:translateY(-3px); box-shadow:0 6px 12px rgba(0,0,0,0.1); }
+    body { margin:0; font-family:'Glacial Indifference', sans-serif; background:#f6f7fb; }
+    .sidebar { width:220px; height:100vh; background:#fff; border-right:1px solid #ddd; position:fixed; top:0; left:0; display:flex; flex-direction:column;}
+    .sidebar .logo { font-weight:bold; font-size:20px; padding:20px; border-bottom:1px solid #ddd; color:#ff385c; }
+    .sidebar ul { list-style:none; padding:0; margin:0; flex:1; }
+    .sidebar ul li { padding:15px 20px; cursor:pointer; transition:0.2s;}
+    .sidebar ul li:hover { background:#f2f2f2; }
+    
+    .main-content { margin-left:220px; padding:30px; }
+    .rooms-container { display:flex; flex-wrap:wrap; gap:20px; margin-top:20px; }
+    
+    .room-box { 
+        width:140px; height:100px; background:#fff; border-radius:12px; border:1px solid #ddd; 
+        display:flex; flex-direction:column; align-items:center; justify-content:center; 
+        font-weight:bold; cursor:pointer; transition:0.2s; 
+    }
+    .room-box.occupied { background: #ffeded; border-color: #ff385c; color: #ff385c; }
+    .room-box:hover { transform:translateY(-3px); box-shadow:0 6px 12px rgba(0,0,0,0.1); }
+
+    /* Modal Styling */
+    .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:1000; }
+    .modal-content { background:#fff; padding:30px; width:400px; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.2); }
+    input, select { width:100%; height:40px; margin:10px 0; border:1px solid #ddd; border-radius:8px; padding:0 10px; box-sizing:border-box; }
+    .btn { width:100%; padding:12px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; margin-top:10px; }
+    .btn-checkout { background:#ff385c; color:white; }
+    .btn-close { background:#eee; color:#333; }
 </style>
 </head>
 <body>
@@ -25,56 +40,123 @@ body { margin:0; font-family:'Glacial Indifference', sans-serif; background:#f6f
   <ul>
     <li onclick="goPage('index.html')">🏠 Dashboard</li>
     <li onclick="goPage('rooms.html')">🛏️ Rooms</li>
-    <li onclick="goPage('guestform.html')">👤 Guests</li>
+    <li onclick="goPage('form.html')">👤 Guests</li>
     <li onclick="goPage('payments.html')">💳 Payments</li>
     <li onclick="goPage('settings.html')">⚙️ Settings</li>
   </ul>
 </div>
 
 <div class="main-content">
-  <h1>Rooms</h1>
-  <div class="rooms-container" id="roomsContainer">Loading rooms...</div>
+  <h1>Room Status</h1>
+  <div class="rooms-container" id="roomsContainer">Fetching current status...</div>
+</div>
+
+<div class="modal" id="checkoutModal">
+    <div class="modal-content">
+        <h2 id="modalTitle">Room Details</h2>
+        <p id="guestInfo" style="font-size:14px; color:#666;"></p>
+        <hr/>
+        <label style="font-size:12px;">Update Checkout Date</label>
+        <input type="date" id="coDate">
+        
+        <label style="font-size:12px;">Payment Method</label>
+        <select id="coPayment">
+            <option value="Cash">Cash</option>
+            <option value="Card">Card</option>
+            <option value="UPI">UPI</option>
+        </select>
+        
+        <button class="btn btn-checkout" onclick="processCheckout()">CHECKOUT & VACATE</button>
+        <button class="btn btn-close" onclick="closeModal()">Close</button>
+    </div>
 </div>
 
 <script>
-function goPage(url) {
-  window.location.href = url;
+/* --- UPDATED CONFIGURATION --- */
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyPL531Y-PfxbWpRJPEubkcNReoqW8ditzmpm_2oFjVRzsZBObI0J2Ol5Lphfr5EZUC/exec'; 
+let roomList = []; // Filled dynamically from "Rooms" sheet
+let activeBookings = {};
+
+function goPage(url) { window.location.href = url; }
+
+async function fetchStatus() {
+    try {
+        // Changed action to 'getFullStatus' to get Rooms + Bookings
+        const response = await fetch(`${SCRIPT_URL}?action=getFullStatus`);
+        const data = await response.json();
+        
+        roomList = data.rooms;         // List from your "Rooms" sheet
+        activeBookings = data.bookings; // Status from your "Bookings" sheet
+        
+        renderRooms();
+    } catch (e) {
+        console.error("Fetch Error:", e);
+        document.getElementById('roomsContainer').textContent = "Failed to load rooms.";
+    }
 }
 
-const container = document.getElementById('roomsContainer');
-// Replace with your deployed Google Apps Script URL
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwHMY5hntN6APHXGyotqdzspYHwCjwDdYR4dZi8KGMWWXRF2HAoMiEXvM5hRlg6Hiao/exec';
-
-fetch(SHEET_URL)
-  .then(res => res.json())
-  .then(rooms => {
+function renderRooms() {
+    const container = document.getElementById('roomsContainer');
     container.innerHTML = '';
-    if(rooms.length === 0){
-      container.textContent = "No rooms available.";
-      return;
-    }
-    rooms.forEach(num => {
-      if(num){
+
+    roomList.forEach(num => {
+        const isOccupied = activeBookings[num];
         const div = document.createElement('div');
-        div.className = 'room-box';
-        div.textContent = 'Room No ' + num;
+        div.className = `room-box ${isOccupied ? 'occupied' : ''}`;
+        div.innerHTML = `<span>Room ${num}</span><small style="font-size:10px;">${isOccupied ? 'OCCUPIED' : 'VACANT'}</small>`;
 
-        // Click handler to open guest form with room number
         div.onclick = () => {
-          window.location.href = `form.html?room=${encodeURIComponent(num)}`;
-        }
-
+            if (isOccupied) {
+                openCheckoutModal(num, activeBookings[num]);
+            } else {
+                window.location.href = `form.html?room=${num}`;
+            }
+        };
         container.appendChild(div);
-      }
     });
-  })
-  .catch(err => {
-    console.error("Error fetching rooms:", err);
-    container.textContent = "Failed to load rooms.";
-  });
+}
 
-  window.location.href = "form.html?room=" + roomNumber;
+let currentRoom = "";
+function openCheckoutModal(room, data) {
+    currentRoom = room;
+    document.getElementById('checkoutModal').style.display = 'flex';
+    document.getElementById('modalTitle').innerText = "Room " + room;
+    document.getElementById('guestInfo').innerText = `Guest: ${data.name}\nCheck-in: ${data.checkin}`;
+    document.getElementById('coDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('checkoutModal').dataset.row = data.row; 
+}
+
+function closeModal() { document.getElementById('checkoutModal').style.display = 'none'; }
+
+async function processCheckout() {
+    const btn = document.querySelector('.btn-checkout');
+    const rowId = document.getElementById('checkoutModal').dataset.row;
+    const date = document.getElementById('coDate').value;
+    const pay = document.getElementById('coPayment').value;
+
+    btn.innerText = "Processing...";
+    btn.disabled = true;
+
+    try {
+        await fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({
+                action: "checkout",
+                row: rowId,
+                checkoutDate: date,
+                payment: pay
+            })
+        });
+        alert("Checkout Complete!");
+        location.reload();
+    } catch (e) {
+        alert("Error during checkout");
+        btn.disabled = false;
+    }
+}
+
+window.onload = fetchStatus;
 </script>
-
 </body>
 </html>
