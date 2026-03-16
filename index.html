@@ -1,134 +1,87 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hotel Dashboard</title>
+<title>Dashboard</title>
+<!-- Google Font -->
 <link href="https://fonts.cdnfonts.com/css/glacial-indifference-2" rel="stylesheet">
 <style>
-  body { margin: 0; font-family: 'Glacial Indifference', sans-serif; background: #f6f7fb; }
-  
-  /* Sidebar */
-  .sidebar {
-    width: 220px; height: 100vh; background: #fff; border-right: 1px solid #ddd;
-    position: fixed; top: 0; left: 0; display: flex; flex-direction: column;
-  }
-  .sidebar .logo { font-weight: bold; font-size: 20px; padding: 20px; border-bottom: 1px solid #ddd; color: #4f46e5; }
-  .sidebar ul { list-style: none; padding: 0; margin: 0; flex: 1; }
-  .sidebar ul li { padding: 15px 20px; cursor: pointer; transition: 0.2s; }
-  .sidebar ul li:hover { background: #f2f2f2; }
-  .sidebar ul li.active { background: #eef2ff; border-left: 4px solid #4f46e5; font-weight: bold; }
+body {
+  margin: 0;
+  font-family: 'Glacial Indifference', sans-serif;
+  background: #f6f7fb;
+}
 
-  /* Main content */
-  .main-content { margin-left: 220px; padding: 30px; }
-  .section { display: none; }
-  .section.active { display: block; }
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  height: 100vh;
+  background: #fff;
+  border-right: 1px solid #ddd;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+}
 
-  /* Upload Box Styling */
-  .upload-card { background: #fff; padding: 25px; border-radius: 12px; border: 1px solid #ddd; max-width: 400px; margin-top: 20px; }
-  .btn { padding: 10px 18px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; margin: 5px 0; width: 100%; }
-  .btn-auth { background: #34A853; color: white; }
-  .btn-upload { background: #4285F4; color: white; }
-  #status { margin-top: 15px; font-size: 14px; font-weight: bold; color: #555; }
+.sidebar .logo {
+  font-weight: bold;
+  font-size: 20px;
+  padding: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+}
+
+.sidebar ul li {
+  padding: 15px 20px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.sidebar ul li:hover {
+  background: #f2f2f2;
+}
+
+/* Main content */
+.main-content {
+  margin-left: 220px;
+  padding: 30px;
+}
 </style>
 </head>
 <body>
 
+<!-- Sidebar -->
 <div class="sidebar">
   <div class="logo">HotelApp</div>
   <ul>
-    <li class="active" onclick="showSection('dashboard', this)">🏠 Dashboard</li>
-    <li onclick="showSection('rooms', this)">🛏️ Rooms</li>
-    <li onclick="showSection('upload', this)">👤 ID Upload</li>
-    <li onclick="showSection('payments', this)">💳 Payments</li>
-    <li onclick="showSection('settings', this)">⚙️ Settings</li>
+    <li onclick="goPage('index.html')">🏠 Dashboard</li>
+    <li onclick="goPage('rooms.html')">🛏️ Rooms</li>
+    <li onclick="goPage('form.html')">👤 Guests</li>
+    <li onclick="goPage('payments.html')">💳 Payments</li>
+    <li onclick="goPage('settings.html')">⚙️ Settings</li>
   </ul>
 </div>
 
+<!-- Main content -->
 <div class="main-content">
-  
-  <div id="dashboard" class="section active">
-    <h1>Dashboard</h1>
-    <p>Welcome to your hotel booking dashboard!</p>
-  </div>
-
-  <div id="upload" class="section">
-    <h1>Guest ID Upload</h1>
-    <p>Upload guest IDs directly to the ID DOC folder using Google API.</p>
-    
-    <div class="upload-card">
-      <button id="auth_button" class="btn btn-auth">1. Authorize Google Drive</button>
-      <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;" />
-      <input type="file" id="testFile" style="margin-bottom: 10px;" /><br />
-      <button id="upload_button" class="btn btn-upload" disabled>2. Upload to Drive</button>
-      <div id="status">Waiting for library...</div>
-    </div>
-  </div>
-
-  <div id="rooms" class="section"><h1>Rooms</h1><p>Room list content goes here.</p></div>
-  <div id="payments" class="section"><h1>Payments</h1><p>Payment tracking goes here.</p></div>
-  <div id="settings" class="section"><h1>Settings</h1><p>System settings here.</p></div>
-
+  <h1>Dashboard</h1>
+  <p>Welcome to your hotel booking dashboard!</p>
 </div>
 
-<script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
-<script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
-
 <script>
-/* --- UI LOGIC --- */
-function showSection(id, el) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
-  el.classList.add('active');
+function goPage(url) {
+  window.location.href = url;
 }
-
-/* --- AUTH CONFIGURATION --- */
-const CLIENT_ID = 'YOUR_CLIENT_ID_HERE'; 
-const API_KEY = 'YOUR_API_KEY_HERE';
-const SCOPES = 'https://www.googleapis.com/auth/drive.file';
-
-let tokenClient;
-let gapiInited = false;
-let gisInited = false;
-
-function gapiLoaded() {
-  gapi.load('client', async () => {
-    await gapi.client.init({
-      apiKey: API_KEY,
-      discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
-    });
-    gapiInited = true;
-    checkReady();
-  });
-}
-
-function gisLoaded() {
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
-    callback: (tokenResponse) => {
-      if (tokenResponse && tokenResponse.access_token) {
-        document.getElementById('upload_button').disabled = false;
-        document.getElementById('status').innerText = "✅ Authenticated! Token Received.";
-        document.getElementById('status').style.color = "green";
-      }
-    },
-  });
-  gisInited = true;
-  checkReady();
-}
-
-function checkReady() {
-  if (gapiInited && gisInited) {
-    document.getElementById('status').innerText = "Libraries Ready. Please Authorize.";
-  }
-}
-
-document.getElementById('auth_button').onclick = () => {
-  // This triggers the Google Login Popup
-  tokenClient.requestAccessToken({prompt: 'consent'});
-};
 </script>
 
 </body>
