@@ -142,7 +142,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbybLrllhgPFJ-e-fiXjnIAQK2weA_WGrsmYIuKrKchHwnnqImNjsZQ4KUQckLCg49aR/exec'; 
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyfmWxeyUgl0XPRELETb5w_OnNVtwSpT188XgEhAmwe0ngApKWfzFSK1zmPAvy9xnVu/exec'; 
     let selectedMethod = "";
 
     function goPage(url) { window.location.href = url; }
@@ -186,7 +186,7 @@
             <div class="guest-grid">
                 <input class="name" placeholder="Full Name">
                 <input class="mobile" placeholder="Mobile" maxlength="10">
-                <select clas="doctype"><option>AADHAAR</option><option>PASSPORT</option><option>DRIVING LICENSE</option></select>
+                <select class="doctype"><option>AADHAAR</option><option>PASSPORT</option><option>DRIVING LICENSE</option></select>
                 <input class="docnumber" placeholder="ID Number">
                 <div>
                     <label class="upload-btn">📁 ID UPLOAD <input type="file" class="docfile" onchange="updateFileName(this)"></label>
@@ -277,11 +277,11 @@ resolve();
 
         try {
             // Send text data first
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify(payload)
-            });
+          await fetch(SCRIPT_URL, {
+    method: 'POST',
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+});
 
             // If text saved, upload files
             const fileInputs = document.querySelectorAll('.docfile');
@@ -301,7 +301,7 @@ resolve();
             window.location.href = 'rooms.html';
         }
     }
-var lastRow = sheet.getLastRow();
+
     
 </script>
     
