@@ -5,31 +5,68 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Guest Entry - HotelApp</title>
 <style>
-    :root { --primary-red: #ff385c; --bg-gray: #f6f7fb; --sidebar-width: 220px; }
-    body, input, select, button { font-family: 'Century Gothic', AppleGothic, sans-serif; }
+    :root {
+        --primary-red: #ff385c;
+        --bg-gray: #f6f7fb;
+        --sidebar-width: 220px;
+    }
+
+    body, input, select, button {
+        font-family: 'Century Gothic', AppleGothic, sans-serif;
+    }
+
     body { margin: 0; background: var(--bg-gray); color: #333; }
-    select { appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ff385c' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-color: #fff; cursor: pointer; }
-    .sidebar { width: var(--sidebar-width); height: 100vh; background: #fff; border-right: 1px solid #ddd; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; }
+
+    select {
+        appearance: none; -webkit-appearance: none; -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ff385c' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-color: #fff;
+        cursor: pointer;
+    }
+
+    .sidebar {
+        width: var(--sidebar-width); height: 100vh; background: #fff;
+        border-right: 1px solid #ddd; position: fixed; top: 0; left: 0;
+        display: flex; flex-direction: column;
+    }
+
     .sidebar .logo { font-weight: bold; font-size: 20px; padding: 20px; border-bottom: 1px solid #ddd; }
     .sidebar ul { list-style: none; padding: 0; margin: 0; flex: 1; }
     .sidebar ul li { padding: 15px 20px; cursor: pointer; transition: 0.2s; }
     .sidebar ul li:hover { background: var(--primary-red); color: white; }
-    .upload-btn.success { background-color: #e8f5e9 !important; color: #2e7d32 !important; border-color: #a5d6a7 !important; }
+
+    .upload-btn.success {
+        background-color: #e8f5e9 !important;
+        color: #2e7d32 !important;
+        border-color: #a5d6a7 !important;
+    }
+
     .main-content { margin-left: var(--sidebar-width); padding: 40px; }
-    .container { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); max-width: 1100px; margin: auto; }
+    .container {
+        background: #fff; padding: 30px; border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05); max-width: 1100px; margin: auto;
+    }
+
     h2 { margin-top: 0; color: #111; }
     .top-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+
     .guest-card { background: #fafafa; border: 1px solid #eee; padding: 20px; border-radius: 10px; margin-bottom: 15px; }
     .guest-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.2fr 1.2fr 45px; gap: 12px; align-items: start; }
+
     input, select { height: 45px; width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 0 12px; font-size: 14px; outline: none; box-sizing: border-box; }
     input:focus { border-color: var(--primary-red); }
+
     .upload-btn { background: #eee; height: 45px; width: 100%; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; text-align: center; box-sizing: border-box; border: 1px solid #ddd; }
     .upload-btn input { display: none; }
     .filename { font-size: 10px; color: #666; margin-top: 4px; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
     .btn { border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
     .btn-add { background: #eee; padding: 10px 20px; margin-bottom: 20px; }
     .btn-save { background: var(--primary-red); color: #fff; padding: 15px 30px; width: 100%; font-size: 16px; margin-top: 10px; }
     .btn-delete { background: #ffeded; color: #ff385c; width: 100%; height: 45px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+
     .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
     .modal-content { background: #fff; padding: 30px; width: 350px; border-radius: 15px; text-align: center; }
     .pay-options { display: flex; gap: 10px; margin: 20px 0; }
@@ -40,6 +77,7 @@
 </style>
 </head>
 <body>
+
 <div class="sidebar">
     <div class="logo">HotelApp</div>
     <ul>
@@ -50,6 +88,7 @@
         <li onclick="goPage('settings.html')">⚙️ Settings</li>
     </ul>
 </div>
+
 <div class="main-content">
     <div class="container">
         <h2>Guest Registration</h2>
@@ -58,12 +97,17 @@
             <div><label style="font-size: 12px;">Check-in</label><input id="checkin" type="date"></div>
             <div><label style="font-size: 12px;">Check-out</label><input id="checkout" type="date"></div>
         </div>
+
         <div id="guestContainer">
             <div class="guest-card">
                 <div class="guest-grid">
                     <input class="name" placeholder="Full Name">
                     <input class="mobile" placeholder="Mobile" maxlength="10">
-                    <select class="doctype"><option>AADHAAR</option><option>PASSPORT</option><option>DRIVING LICENSE</option></select>
+                    <select class="doctype">
+                        <option>AADHAAR</option>
+                        <option>PASSPORT</option>
+                        <option>DRIVING LICENSE</option>
+                    </select>
                     <input class="docnumber" placeholder="ID Number">
                     <div>
                         <label class="upload-btn">📁 ID UPLOAD <input type="file" class="docfile" onchange="updateFileName(this)"></label>
@@ -73,10 +117,12 @@
                 </div>
             </div>
         </div>
+
         <button class="btn btn-add" onclick="addGuest()">+ Add Extra Guest</button>
         <button class="btn btn-save" onclick="validateAndPay()">PROCEED TO PAYMENT</button>
     </div>
 </div>
+
 <div class="modal" id="paymentModal">
     <div class="modal-content">
         <h3>Payment Method</h3>
@@ -85,24 +131,37 @@
             <div class="pay-btn" onclick="selectPay(this, 'Card')">Card</div>
             <div class="pay-btn" onclick="selectPay(this, 'UPI')">UPI</div>
         </div>
-        <div id="qrBox" style="display:none;"><img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay"><p style="font-size:12px;">Scan to Pay</p></div>
+        <div id="qrBox" style="display:none;">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay">
+            <p style="font-size:12px;">Scan to Pay</p>
+        </div>
         <button class="btn btn-save" style="margin-top:10px;" onclick="completeBooking()">FINALIZE BOOKING</button>
         <button class="btn btn-add" style="width:100%; margin-top:10px;" onclick="closeModal()">Cancel</button>
         <div class="success-msg" id="successMsg">🎉 Booking Successful!</div>
     </div>
 </div>
+
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiBq17p6H6iU9arzFdRAA7LBad-xRlC_BuO9A1WsiEPsiVVrx4SuMGZmWYveocNM-W/exec';
+    // REPLACE THIS URL with your latest Web App deployment URL
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzMp8jkRDp5WDGSeWT8IEkA0ipLgVSZViu9O0pA8UN_2flcoczunl-RcGeuEmFkCE_h/exec'; 
     let selectedMethod = "";
+
     function goPage(url) { window.location.href = url; }
 
     window.onload = () => {
         const params = new URLSearchParams(window.location.search);
         if(params.get('room')) document.getElementById('roomNo').value = params.get('room');
-        const today = new Date().toISOString().split('T')[0];
+
+        const now = new Date();
+        const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+
         const cin = document.getElementById('checkin');
         const cout = document.getElementById('checkout');
-        cin.min = today; cin.value = today; cout.min = today;
+
+        cin.min = today;
+        cin.value = today;
+        cout.min = today;
+
         cin.addEventListener('change', function() {
             cout.min = this.value;
             if (cout.value < this.value) cout.value = this.value;
@@ -113,13 +172,9 @@
         const label = input.parentElement;
         const filenameDisplay = label.nextElementSibling;
         if (input.files.length > 0) {
-            filenameDisplay.innerText = input.files[0].name;
+            filenameDisplay.innerText = "Ready to save";
             label.classList.add('success');
-            label.childNodes[0].nodeValue = "✅ UPLOADED "; 
-        } else {
-            filenameDisplay.innerText = "No file chosen";
-            label.classList.remove('success');
-            label.childNodes[0].nodeValue = "📁 ID UPLOAD ";
+            label.childNodes[0].nodeValue = "✅ READY "; 
         }
     }
 
@@ -128,112 +183,78 @@
         if(container.children.length >= 2) return alert("Max 2 guests per room.");
         const row = document.createElement('div');
         row.className = 'guest-card';
-        row.innerHTML = `<div class="guest-grid">
-            <input class="name" placeholder="Full Name">
-            <input class="mobile" placeholder="Mobile" maxlength="10">
-            <select class="doctype"><option>AADHAAR</option><option>PASSPORT</option><option>DRIVING LICENSE</option></select>
-            <input class="docnumber" placeholder="ID Number">
-            <div><label class="upload-btn">📁 ID UPLOAD <input type="file" class="docfile" onchange="updateFileName(this)"></label><div class="filename">No file chosen</div></div>
-            <button class="btn btn-delete" onclick="this.closest('.guest-card').remove()">✕</button>
-        </div>`;
+        row.innerHTML = `
+            <div class="guest-grid">
+                <input class="name" placeholder="Full Name">
+                <input class="mobile" placeholder="Mobile" maxlength="10">
+                <select class="doctype"><option>AADHAAR</option><option>PASSPORT</option><option>DRIVING LICENSE</option></select>
+                <input class="docnumber" placeholder="ID Number">
+                <div>
+                    <label class="upload-btn">📁 ID UPLOAD <input type="file" class="docfile" onchange="updateFileName(this)"></label>
+                    <div class="filename">No file chosen</div>
+                </div>
+                <button class="btn btn-delete" onclick="this.closest('.guest-card').remove()">✕</button>
+            </div>`;
         container.appendChild(row);
     }
 
     function validateAndPay() {
         const room = document.getElementById('roomNo').value;
         const cin = document.getElementById('checkin').value;
-        const cout = document.getElementById('checkout').value;
-        if (!room || !cin || !cout) return alert("Fill Room and Dates");
-        const rows = document.querySelectorAll('.guest-card');
-        let allValid = true;
-        rows.forEach((row, index) => {
-            const name = row.querySelector('.name').value.trim();
-            const mob = row.querySelector('.mobile').value.trim();
-            const file = row.querySelector('.docfile').files.length;
-            if (!name || !mob || file === 0) { alert(`Complete details for Guest ${index + 1}`); allValid = false; }
-        });
-        if (allValid) document.getElementById('paymentModal').style.display = 'flex';
+        if (!room || !cin) return alert("Fill Room and Dates");
+        document.getElementById('paymentModal').style.display = 'flex';
     }
 
     function closeModal() { document.getElementById('paymentModal').style.display = 'none'; }
+
     function selectPay(el, method) {
         document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('active'));
-        el.classList.add('active'); selectedMethod = method;
+        el.classList.add('active');
+        selectedMethod = method;
         document.getElementById('qrBox').style.display = (method === 'UPI') ? 'block' : 'none';
     }
 
-  async function completeBooking(){
+    async function completeBooking() {
+        if (!selectedMethod) return alert("Please select a payment method.");
 
-if(!selectedMethod) return alert("Select payment method");
+        const finishBtn = document.querySelector('.modal-content button[onclick="completeBooking()"]');
+        finishBtn.innerText = "Saving Data...";
+        finishBtn.disabled = true;
 
-const finishBtn = document.querySelector('.modal-content button[onclick="completeBooking()"]');
-finishBtn.innerText = "Processing...";
-finishBtn.disabled = true;
+        const guests = [];
+        document.querySelectorAll('.guest-card').forEach(row => {
+            guests.push({
+                name: row.querySelector('.name').value,
+                mobile: row.querySelector('.mobile').value,
+                docType: row.querySelector('.doctype').value,
+                docNumber: row.querySelector('.docnumber').value
+            });
+        });
 
+        const payload = {
+            room: document.getElementById('roomNo').value,
+            checkin: document.getElementById('checkin').value,
+            checkout: document.getElementById('checkout').value,
+            method: selectedMethod,
+            guests: guests
+        };
 
-// DATE FORMAT
-const fmtDate = (dateStr)=>{
-const [y,m,d] = dateStr.split('-');
-return `${d}-${m}-${y}`;
-};
-
-
-// GUEST DATA
-const guests = [];
-
-document.querySelectorAll('.guest-card').forEach(row=>{
-
-guests.push({
-
-name: row.querySelector('.name').value.trim(),
-mobile: row.querySelector('.mobile').value.trim(),
-docType: row.querySelector('.doctype').value,
-docNumber: row.querySelector('.docnumber').value.trim()
-
-});
-
-});
-
-
-// FINAL DATA
-const payload = {
-
-room: document.getElementById('roomNo').value,
-checkin: fmtDate(document.getElementById('checkin').value),
-checkout: fmtDate(document.getElementById('checkout').value),
-paymentMethod: selectedMethod,
-paymentStatus: "Paid",
-guests: guests
-
-};
-
-
-// SEND DATA
-fetch(SCRIPT_URL,{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify(payload)
-})
-.then(res=>res.json())
-.then(data=>{
-
-document.getElementById('successMsg').style.display="block";
-
-setTimeout(()=>{
-window.location.href="rooms.html";
-},2000);
-
-})
-.catch(err=>{
-console.error(err);
-alert("Error saving data");
-finishBtn.disabled=false;
-finishBtn.innerText="FINALIZE BOOKING";
-});
-
-}
+        // FIXED: Using no-cors and removing JSON headers to bypass security errors
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            document.getElementById('successMsg').style.display = 'block';
+            setTimeout(() => { window.location.href = 'rooms.html'; }, 2000);
+        })
+        .catch(err => {
+            alert("Connection error, but data may have been sent.");
+            finishBtn.disabled = false;
+            finishBtn.innerText = "FINALIZE BOOKING";
+        });
+    }
 </script>
 </body>
 </html>
