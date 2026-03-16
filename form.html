@@ -360,7 +360,7 @@ margin-top:15px;
 
 <script>
 
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycbzdjOb4-rNONK6MCCBuISoMT6iTQJV0XPcU_J4tU0eTgSXzDB0Ut4wJ-KabxHlhbo6A/exec";
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbxe2PNZNYnDoBaCEQ3bE6x7_16eiuocPZ1g3qE1r6p5av23Wv4CTH_mb1FjdX20YSmE/exec";
 
 let selectedMethod="";
 
@@ -505,33 +505,77 @@ reader.readAsDataURL(file);
 
 }
 
-async function completeBooking(){
+async function completeBooking() {
+    if (!selectedMethod) {
+        alert("Select payment method");
+        return;
+    }
 
-if(!selectedMethod){
-alert("Select payment method");
-return;
-}
+    // Disable button to prevent double clicks
+    const finishBtn = document.querySelector('.btn-save[onclick="completeBooking()"]');
+    if(finishBtn) {
+        finishBtn.innerText = "Processing...";
+        finishBtn.disabled = true;
+    }
 
-const rows=document.querySelectorAll(".guest-card");
+    const rows = document.querySelectorAll(".guest-card");
+    const guests = [];
 
-const guests=[];
+    // Date formatting helper
+    const fmtDate = (dateStr) => {
+        if(!dateStr) return "";
+        const [y, m, d] = dateStr.split('-');
+        return `${d}-${m}-${year}`;
+    };
 
-for(const row of rows){
+    try {
+        for (const row of rows) {
+            const file = row.querySelector(".docfile").files[0];
+            const base64 = await fileToBase64(file);
 
-const file=row.querySelector(".docfile").files[0];
+            guests.push({
+                name: row.querySelector(".name").value,
+                mobile: row.querySelector(".mobile").value,
+                docType: row.querySelector(".doctype").value,
+                docNumber: row.querySelector(".docnumber").value,
+                fileData: base64,
+                fileName: file.name,
+                fileType: file.type
+            });
+        }
 
-const base64=await fileToBase64(file);
+        const payload = {
+            room: document.getElementById("roomNo").value,
+            checkin: document.getElementById("checkin").value,
+            checkout: document.getElementById("checkout").value,
+            method: selectedMethod,
+            guests: guests
+        };
 
-guests.push({
-name:row.querySelector(".name").value,
-mobile:row.querySelector(".mobile").value,
-docType:row.querySelector(".doctype").value,
-docNumber:row.querySelector(".docnumber").value,
-fileData:base64,
-fileName:file.name,
-fileType:file.type
-});
+        // FIXED FETCH CALL
+        await fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors", // Crucial for Google Apps Script
+            cache: "no-cache",
+            body: JSON.stringify(payload)
+        });
 
+        // Since no-cors doesn't allow reading the response, we assume success 
+        // if no network error occurred.
+        document.getElementById("successMsg").style.display = "block";
+
+        setTimeout(() => {
+            window.location.href = "rooms.html";
+        }, 2000);
+
+    } catch (err) {
+        console.error(err);
+        alert("Network Error. Please check your connection.");
+        if(finishBtn) {
+            finishBtn.innerText = "FINALIZE BOOKING";
+            finishBtn.disabled = false;
+        }
+    }
 }
 
 const payload={
