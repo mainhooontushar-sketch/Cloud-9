@@ -142,7 +142,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyfmWxeyUgl0XPRELETb5w_OnNVtwSpT188XgEhAmwe0ngApKWfzFSK1zmPAvy9xnVu/exec'; 
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbybLrllhgPFJ-e-fiXjnIAQK2weA_WGrsmYIuKrKchHwnnqImNjsZQ4KUQckLCg49aR/exec'; 
     let selectedMethod = "";
 
     function goPage(url) { window.location.href = url; }
@@ -215,45 +215,27 @@
 
     // Step 1: Logic to Upload Files as Byte Arrays (Stable)
     async function uploadFiles(fileInputs) {
+        for (let input of fileInputs) {
+            if (input.files[0]) {
+                const file = input.files[0];
+                const fr = new FileReader();
+                
+                await new Promise(resolve => {
+                    fr.readAsArrayBuffer(file);
+                    fr.onload = async (f) => {
+                        const qs = new URLSearchParams({ filename: file.name, mimeType: file.type });
+                        await fetch(`${SCRIPT_URL}?${qs}`, {
+                            method: "POST",
+                            mode: "no-cors",
+                            body: JSON.stringify([...new Int8Array(f.target.result)]),
+                        });
+                        resolve();
+                    };
+                });
+            }
+        }
+    }
 
-for (let input of fileInputs) {
-
-if (input.files[0]) {
-
-const file = input.files[0];
-
-const reader = new FileReader();
-
-await new Promise(resolve => {
-
-reader.readAsDataURL(file);
-
-reader.onload = async () => {
-
-const base64 = reader.result.split(',')[1];
-
-await fetch(SCRIPT_URL, {
-method: "POST",
-headers: { "Content-Type": "application/json" },
-body: JSON.stringify({
-action: "upload",
-fileData: base64,
-fileName: file.name,
-fileType: file.type
-})
-});
-
-resolve();
-
-};
-
-});
-
-}
-
-}
-
-}
     // Step 2: Logic to Save Data then trigger Files
     async function completeBooking() {
         if (!selectedMethod) return alert("Select payment method");
@@ -277,11 +259,11 @@ resolve();
 
         try {
             // Send text data first
-          await fetch(SCRIPT_URL, {
-    method: 'POST',
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-});
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(payload)
+            });
 
             // If text saved, upload files
             const fileInputs = document.querySelectorAll('.docfile');
@@ -301,9 +283,6 @@ resolve();
             window.location.href = 'rooms.html';
         }
     }
-
-    
 </script>
-    
 </body>
 </html>
