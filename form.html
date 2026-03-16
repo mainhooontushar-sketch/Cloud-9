@@ -92,7 +92,7 @@
     </div>
 </div>
 <script>
-    const SCRIPT_URL = 'PASTE_YOUR_URL_HERE';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzsKVB5X8ZTSKomSkWkvPvvgS3n2nbeE--JYonwSVaoXqCSRrm1HQFL_KPJeY2ssRaB/exec';
     let selectedMethod = "";
     function goPage(url) { window.location.href = url; }
 
@@ -162,61 +162,112 @@
         document.getElementById('qrBox').style.display = (method === 'UPI') ? 'block' : 'none';
     }
 
-    async function completeBooking() {
-        if(!selectedMethod) return alert("Select payment method");
-        const finishBtn = document.querySelector('.modal-content button[onclick="completeBooking()"]');
-        finishBtn.innerText = "Uploading..."; finishBtn.disabled = true;
+   async function completeBooking(){
 
-        const fmtDate = (dateStr) => {
-            const [y, m, d] = dateStr.split('-');
-            return `${d}-${m}-${y}`;
-        };
+if(!selectedMethod) return alert("Select payment method");
 
-        const guests = [];
-        const rows = document.querySelectorAll('.guest-card');
-        
-        try {
-            for(let row of rows) {
-                const fileInput = row.querySelector('.docfile').files[0];
-                let base64 = "";
-                if(fileInput) {
-                    base64 = await new Promise(res => {
-                        const r = new FileReader();
-                        r.onload = () => res(r.result.split(',')[1]);
-                        r.readAsDataURL(fileInput);
-                    });
-                }
-                guests.push({
-                    name: row.querySelector('.name').value,
-                    mobile: row.querySelector('.mobile').value,
-                    docType: row.querySelector('.doctype').value,
-                    docNumber: row.querySelector('.docnumber').value,
-                    fileData: base64, fileName: fileInput.name, fileType: fileInput.type
-                });
-            }
+const finishBtn = document.querySelector('.modal-content button[onclick="completeBooking()"]');
+finishBtn.innerText = "Processing...";
+finishBtn.disabled = true;
 
-            const payload = {
-                room: document.getElementById('roomNo').value,
-                checkin: fmtDate(document.getElementById('checkin').value),
-                checkout: fmtDate(document.getElementById('checkout').value),
-                method: selectedMethod, guests: guests
-            };
 
-            // NO-CORS mode to bypass security blocks
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify(payload)
-            });
+// DATE FORMAT DD-MM-YYYY
+const fmtDate = (dateStr)=>{
+const [y,m,d] = dateStr.split('-');
+return `${d}-${m}-${y}`;
+};
 
-            document.getElementById('successMsg').style.display = 'block';
-            setTimeout(() => { window.location.href = 'rooms.html'; }, 2500);
 
-        } catch (err) {
-            alert("Error saving data");
-            finishBtn.disabled = false; finishBtn.innerText = "FINALIZE BOOKING";
-        }
-    }
+// GET GUEST DATA
+const guests = [];
+
+for(let row of document.querySelectorAll('.guest-card')){
+
+const fileInput = row.querySelector('.docfile').files[0];
+
+let base64="";
+
+if(fileInput){
+
+base64 = await new Promise(resolve=>{
+const reader = new FileReader();
+reader.onload = ()=>resolve(reader.result.split(',')[1]);
+reader.readAsDataURL(fileInput);
+});
+
+}
+
+guests.push({
+
+name: row.querySelector('.name').value.trim(),
+
+mobile: row.querySelector('.mobile').value.trim(),
+
+docType: row.querySelector('.doctype').value,
+
+docNumber: row.querySelector('.docnumber').value.trim(),
+
+file:{
+name:fileInput ? fileInput.name : "",
+type:fileInput ? fileInput.type : "",
+data:base64
+}
+
+});
+
+}
+
+
+// FINAL DATA
+const payload = {
+
+room: document.getElementById('roomNo').value,
+
+checkin: fmtDate(document.getElementById('checkin').value),
+
+checkout: fmtDate(document.getElementById('checkout').value),
+
+paymentMethod: selectedMethod,
+
+paymentStatus: selectedMethod === "UPI" ? "Paid" : "Paid",
+
+guests: guests
+
+};
+
+
+// SEND TO APPS SCRIPT
+fetch(SCRIPT_URL,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(payload)
+})
+.then(res=>res.json())
+.then(data=>{
+
+console.log(data);
+
+document.getElementById('successMsg').style.display="block";
+
+setTimeout(()=>{
+window.location.href="rooms.html";
+},2000);
+
+})
+.catch(err=>{
+
+console.error(err);
+
+alert("Error saving data");
+
+finishBtn.disabled=false;
+finishBtn.innerText="FINALIZE BOOKING";
+
+});
+
+}
 </script>
 </body>
 </html>
