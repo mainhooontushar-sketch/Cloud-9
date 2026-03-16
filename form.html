@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Guest Entry - HotelApp</title>
 <style>
+    /* UI remains exactly the same as provided */
     :root {
         --primary-red: #ff385c;
         --bg-gray: #f6f7fb;
@@ -135,14 +136,18 @@
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay">
             <p style="font-size:12px;">Scan to Pay</p>
         </div>
-        <button class="btn btn-save" style="margin-top:10px;" onclick="completeBooking()">FINALIZE BOOKING</button>
+        <button class="btn btn-save" id="finalizeBtn" style="margin-top:10px;" onclick="completeBooking()">FINALIZE BOOKING</button>
         <button class="btn btn-add" style="width:100%; margin-top:10px;" onclick="closeModal()">Cancel</button>
         <div class="success-msg" id="successMsg">🎉 Booking Successful!</div>
     </div>
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxqZOBE2GPA0-5IWicUwyYf26_yRgmK9NLSZyF6iOUvUV95jT21Lf3lsxeT101EyHep/exec'; 
+    /* --- CONFIGURATION --- */
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2Ge1nkb0Y0BhW9mcgeFARXSFjwG_DiDnkqUcGPmgcsVhoONOTWTwCEcnrDcpgTZ0/exec';
+    const CLOUD_NAME = 'dhnadl2xv'; 
+    const UPLOAD_PRESET = 'Cloud 9';
+
     let selectedMethod = "";
 
     function goPage(url) { window.location.href = url; }
@@ -157,10 +162,7 @@
         const cin = document.getElementById('checkin');
         const cout = document.getElementById('checkout');
 
-        cin.min = today;
-        cin.value = today;
-        cout.min = today;
-
+        cin.min = today; cin.value = today; cout.min = today;
         cin.addEventListener('change', function() {
             cout.min = this.value;
             if (cout.value < this.value) cout.value = this.value;
@@ -171,7 +173,7 @@
         const label = input.parentElement;
         const filenameDisplay = label.nextElementSibling;
         if (input.files.length > 0) {
-            filenameDisplay.innerText = "Ready to save";
+            filenameDisplay.innerText = "Ready to upload";
             label.classList.add('success');
             label.childNodes[0].nodeValue = "✅ READY "; 
         }
@@ -213,77 +215,79 @@
         document.getElementById('qrBox').style.display = (method === 'UPI') ? 'block' : 'none';
     }
 
-    // Step 1: Logic to Upload Files as Byte Arrays (Stable)
-    async function uploadFiles(fileInputs) {
-        for (let input of fileInputs) {
-            if (input.files[0]) {
-                const file = input.files[0];
-                const fr = new FileReader();
-                
-                await new Promise(resolve => {
-                    fr.readAsArrayBuffer(file);
-                    fr.onload = async (f) => {
-                        const qs = new URLSearchParams({ filename: file.name, mimeType: file.type });
-                        await fetch(`${SCRIPT_URL}?${qs}`, {
-                            method: "POST",
-                            mode: "no-cors",
-                            body: JSON.stringify([...new Int8Array(f.target.result)]),
-                        });
-                        resolve();
-                    };
-                });
-            }
+    /* --- CLOUDINARY UPLOAD LOGIC --- */
+    async function uploadToCloudinary(fileInput) {
+        if (!fileInput.files[0]) return "No File";
+        
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', UPLOAD_PRESET);
+
+        try {
+            const resp = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await resp.json();
+            return data.secure_url || "Upload Failed";
+        } catch (e) {
+            return "Error: " + e.message;
         }
     }
 
-    // Step 2: Logic to Save Data then trigger Files
+    /* --- FINAL SUBMISSION --- */
     async function completeBooking() {
         if (!selectedMethod) return alert("Select payment method");
-        
-        const finishBtn = document.querySelector('.modal-content button[onclick="completeBooking()"]');
-        finishBtn.innerText = "1. Saving Details..."; 
-        finishBtn.disabled = true;
 
+        const btn = document.getElementById('finalizeBtn');
+        btn.innerText = "⏳ Uploading Documents...";
+        btn.disabled = true;
+
+        const guests = document.querySelectorAll('.guest-card');
+        const guestList = [];
+
+        // 1. Upload files to Cloudinary one by one
+        for (let card of guests) {
+            const fileInput = card.querySelector('.docfile');
+            const idUrl = await uploadToCloudinary(fileInput);
+            
+            guestList.push({
+                name: card.querySelector('.name').value,
+                mobile: card.querySelector('.mobile').value,
+                docType: card.querySelector('.doctype').value,
+                docNumber: card.querySelector('.docnumber').value,
+                docUrl: idUrl
+            });
+        }
+
+        // 2. Prepare Payload for Google Sheet
         const payload = {
             room: document.getElementById('roomNo').value,
             checkin: document.getElementById('checkin').value,
             checkout: document.getElementById('checkout').value,
             method: selectedMethod,
-            guests: Array.from(document.querySelectorAll('.guest-card')).map(row => ({
-                name: row.querySelector('.name').value,
-                mobile: row.querySelector('.mobile').value,
-                docType: row.querySelector('.doctype').value,
-                docNumber: row.querySelector('.docnumber').value
-            }))
+            guests: guestList
         };
 
+        btn.innerText = "⏳ Saving Guest Info...";
+
         try {
-            // Send text data first
-            await fetch(SCRIPT_URL, {
+            await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 body: JSON.stringify(payload)
             });
 
-            // If text saved, upload files
-            const fileInputs = document.querySelectorAll('.docfile');
-            const hasFiles = Array.from(fileInputs).some(i => i.files.length > 0);
-
-            if (hasFiles) {
-                finishBtn.innerText = "2. Uploading ID...";
-                await uploadFiles(fileInputs);
-            }
-
             document.getElementById('successMsg').style.display = 'block';
             setTimeout(() => { window.location.href = 'rooms.html'; }, 2000);
 
         } catch (e) {
-            console.error("Error:", e);
-            alert("Process finished. Check spreadsheet.");
+            console.error(e);
+            alert("Error saving data, but IDs were uploaded.");
             window.location.href = 'rooms.html';
         }
     }
 </script>
 </body>
 </html>
-
