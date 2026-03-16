@@ -341,7 +341,7 @@ window.addEventListener('DOMContentLoaded', () => {
         validateDate(this);
     });
 });
-    const SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE'; 
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbySGddqfBnyI96p4hohZhStex0PIulYjc4uFgw7WWDFjJz8WHcu4-SVb9-aqP4PFl1-/exec'; 
     let selectedMethod = "";
 
     function goPage(url) { window.location.href = url; }
@@ -446,10 +446,68 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     async function completeBooking() {
-        if(!selectedMethod) return alert("Select a payment method.");
-        document.getElementById('successMsg').style.display = 'block';
-        setTimeout(() => goPage('rooms.html'), 1500);
+    if(!selectedMethod) return alert("Please select a payment method.");
+    
+    // Helper to format yyyy-mm-dd to dd-mm-yyyy
+    const fmtDate = (dateStr) => {
+        if(!dateStr) return "";
+        const [y, m, d] = dateStr.split('-');
+        return `${d}-${m}-${y}`;
+    };
+
+    // Disable button to prevent double submission
+    const finishBtn = document.querySelector('.modal-content button[onclick="completeBooking()"]');
+    finishBtn.innerText = "Processing...";
+    finishBtn.disabled = true;
+
+    const guests = [];
+    const rows = document.querySelectorAll('.guest-card');
+    
+    for(let row of rows) {
+        const fileInput = row.querySelector('.docfile').files[0];
+        let base64 = "";
+        
+        if(fileInput) {
+            base64 = await new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.readAsDataURL(fileInput);
+            });
+        }
+
+        guests.push({
+            name: row.querySelector('.name').value,
+            mobile: row.querySelector('.mobile').value,
+            docType: row.querySelector('.doctype').value,
+            docNumber: row.querySelector('.docnumber').value,
+            fileData: base64,
+            fileName: fileInput ? fileInput.name : "",
+            fileType: fileInput ? fileInput.type : ""
+        });
     }
+
+    const payload = {
+        room: document.getElementById('roomNo').value,
+        // Reformatting dates here before sending
+        checkin: fmtDate(document.getElementById('checkin').value),
+        checkout: fmtDate(document.getElementById('checkout').value),
+        method: selectedMethod,
+        guests: guests
+    };
+
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors', // Essential for Google Apps Script cross-domain
+        body: JSON.stringify(payload)
+    }).then(() => {
+        document.getElementById('successMsg').style.display = 'block';
+        setTimeout(() => window.location.href = 'rooms.html', 2000);
+    }).catch(err => {
+        alert("Error saving to sheet.");
+        finishBtn.disabled = false;
+        finishBtn.innerText = "FINALIZE BOOKING";
+    });
+}
 </script>
 
 </body>
