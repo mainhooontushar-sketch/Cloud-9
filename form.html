@@ -355,22 +355,19 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('checkin').value = today;
     };
 
-    function updateFileName(input) {
+ function updateFileName(input) {
     const label = input.parentElement;
     const filenameDisplay = label.nextElementSibling;
     
     if (input.files.length > 0) {
-        const name = input.files[0].name;
-        filenameDisplay.innerText = name;
-        
-        // Change button UI
+        filenameDisplay.innerText = input.files[0].name;
         label.classList.add('success');
-        // We use a span or just text; let's update the innerText but keep the input
-        label.innerHTML = `✅ UPLOADED <input type="file" class="docfile" onchange="updateFileName(this)">`;
+        // Update label text while keeping the hidden input functional
+        label.childNodes[0].nodeValue = "✅ UPLOADED "; 
     } else {
         filenameDisplay.innerText = "No file chosen";
         label.classList.remove('success');
-        label.innerHTML = `📁 ID UPLOAD <input type="file" class="docfile" onchange="updateFileName(this)">`;
+        label.childNodes[0].nodeValue = "📁 ID UPLOAD ";
     }
 }
 
