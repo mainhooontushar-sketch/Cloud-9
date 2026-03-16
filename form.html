@@ -92,7 +92,7 @@
     </div>
 </div>
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzsKVB5X8ZTSKomSkWkvPvvgS3n2nbeE--JYonwSVaoXqCSRrm1HQFL_KPJeY2ssRaB/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiBq17p6H6iU9arzFdRAA7LBad-xRlC_BuO9A1WsiEPsiVVrx4SuMGZmWYveocNM-W/exec';
     let selectedMethod = "";
     function goPage(url) { window.location.href = url; }
 
@@ -162,7 +162,7 @@
         document.getElementById('qrBox').style.display = (method === 'UPI') ? 'block' : 'none';
     }
 
-   async function completeBooking(){
+  async function completeBooking(){
 
 if(!selectedMethod) return alert("Select payment method");
 
@@ -171,72 +171,44 @@ finishBtn.innerText = "Processing...";
 finishBtn.disabled = true;
 
 
-// DATE FORMAT DD-MM-YYYY
+// DATE FORMAT
 const fmtDate = (dateStr)=>{
 const [y,m,d] = dateStr.split('-');
 return `${d}-${m}-${y}`;
 };
 
 
-// GET GUEST DATA
+// GUEST DATA
 const guests = [];
 
-for(let row of document.querySelectorAll('.guest-card')){
-
-const fileInput = row.querySelector('.docfile').files[0];
-
-let base64="";
-
-if(fileInput){
-
-base64 = await new Promise(resolve=>{
-const reader = new FileReader();
-reader.onload = ()=>resolve(reader.result.split(',')[1]);
-reader.readAsDataURL(fileInput);
-});
-
-}
+document.querySelectorAll('.guest-card').forEach(row=>{
 
 guests.push({
 
 name: row.querySelector('.name').value.trim(),
-
 mobile: row.querySelector('.mobile').value.trim(),
-
 docType: row.querySelector('.doctype').value,
-
-docNumber: row.querySelector('.docnumber').value.trim(),
-
-file:{
-name:fileInput ? fileInput.name : "",
-type:fileInput ? fileInput.type : "",
-data:base64
-}
+docNumber: row.querySelector('.docnumber').value.trim()
 
 });
 
-}
+});
 
 
 // FINAL DATA
 const payload = {
 
 room: document.getElementById('roomNo').value,
-
 checkin: fmtDate(document.getElementById('checkin').value),
-
 checkout: fmtDate(document.getElementById('checkout').value),
-
 paymentMethod: selectedMethod,
-
-paymentStatus: selectedMethod === "UPI" ? "Paid" : "Paid",
-
+paymentStatus: "Paid",
 guests: guests
 
 };
 
 
-// SEND TO APPS SCRIPT
+// SEND DATA
 fetch(SCRIPT_URL,{
 method:"POST",
 headers:{
@@ -247,8 +219,6 @@ body:JSON.stringify(payload)
 .then(res=>res.json())
 .then(data=>{
 
-console.log(data);
-
 document.getElementById('successMsg').style.display="block";
 
 setTimeout(()=>{
@@ -257,14 +227,10 @@ window.location.href="rooms.html";
 
 })
 .catch(err=>{
-
 console.error(err);
-
 alert("Error saving data");
-
 finishBtn.disabled=false;
 finishBtn.innerText="FINALIZE BOOKING";
-
 });
 
 }
