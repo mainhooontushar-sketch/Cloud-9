@@ -3,94 +3,138 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Room Management</title>
+<title>Room Management - HotelApp</title>
 <link href="https://fonts.cdnfonts.com/css/glacial-indifference-2" rel="stylesheet">
 <style>
-    body { margin:0; font-family:'Glacial Indifference', sans-serif; background:#f6f7fb; }
-    .sidebar { width:220px; height:100vh; background:#fff; border-right:1px solid #ddd; position:fixed; top:0; left:0; display:flex; flex-direction:column;}
-    .sidebar .logo { font-weight:bold; font-size:20px; padding:20px; border-bottom:1px solid #ddd; color:#ff385c; }
-    .sidebar ul { list-style:none; padding:0; margin:0; flex:1; }
-    .sidebar ul li { padding:15px 20px; cursor:pointer; transition:0.2s;}
-    .sidebar ul li:hover { background:#f2f2f2; }
+    :root {
+        --primary-red: #ff385c;
+        --bg-gray: #f6f7fb;
+        --sidebar-width: 220px;
+    }
+
+    body { margin:0; font-family:'Glacial Indifference', sans-serif; background: var(--bg-gray); color: #333; }
     
-    .main-content { margin-left:220px; padding:30px; }
-    .rooms-container { display:flex; flex-wrap:wrap; gap:20px; margin-top:20px; }
+    /* Sidebar */
+    .sidebar { width: var(--sidebar-width); height:100vh; background:#fff; border-right:1px solid #ddd; position:fixed; top:0; left:0; display:flex; flex-direction:column; z-index: 100;}
+    .sidebar .logo { font-weight:bold; font-size:20px; padding:20px; border-bottom:1px solid #ddd; color: var(--primary-red); }
+    .sidebar ul { list-style:none; padding:0; margin:0; flex:1; }
+    .sidebar ul li { padding:15px 20px; cursor:pointer; transition: 0.2s; border-left: 4px solid transparent; }
+    .sidebar ul li:hover { background:#f9f9f9; border-left: 4px solid var(--primary-red); }
+    
+    /* Main Content */
+    .main-content { margin-left: var(--sidebar-width); padding:40px; }
+    .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    h1 { margin: 0; font-size: 28px; color: #111; }
+
+    /* Room Grid */
+    .rooms-container { display:flex; flex-wrap:wrap; gap:20px; }
     
     .room-box { 
-        width:140px; height:100px; background:#fff; border-radius:12px; border:1px solid #ddd; 
+        width:140px; height:110px; background:#fff; border-radius:12px; border:1px solid #ddd; 
         display:flex; flex-direction:column; align-items:center; justify-content:center; 
-        font-weight:bold; cursor:pointer; transition:0.2s; 
+        font-weight:bold; cursor:pointer; transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
     }
-    .room-box.occupied { background: #ffeded; border-color: #ff385c; color: #ff385c; }
-    .room-box:hover { transform:translateY(-3px); box-shadow:0 6px 12px rgba(0,0,0,0.1); }
+    .room-box:hover { transform:translateY(-4px); box-shadow:0 8px 15px rgba(0,0,0,0.1); }
+    
+    /* Occupied State */
+    .room-box.occupied { background: #fff5f6; border-color: #ffb3bf; color: var(--primary-red); }
+    .room-box.occupied small { color: #ff385c; font-weight: bold; }
+    
+    /* Vacant State */
+    .room-box.vacant { color: #2e7d32; }
+    .room-box.vacant small { color: #666; }
 
-    /* Modal Styling */
-    .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:1000; }
-    .modal-content { background:#fff; padding:30px; width:400px; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.2); }
-    input, select { width:100%; height:40px; margin:10px 0; border:1px solid #ddd; border-radius:8px; padding:0 10px; box-sizing:border-box; }
-    .btn { width:100%; padding:12px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; margin-top:10px; }
-    .btn-checkout { background:#ff385c; color:white; }
-    .btn-close { background:#eee; color:#333; }
+    /* Modal */
+    .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index:1000; backdrop-filter: blur(3px); }
+    .modal-content { background:#fff; padding:30px; width:380px; border-radius:15px; box-shadow:0 15px 35px rgba(0,0,0,0.2); text-align: center; }
+    .modal-content h2 { margin-top: 0; color: #111; }
+    
+    .info-pane { background: #f9f9f9; padding: 15px; border-radius: 8px; text-align: left; margin-bottom: 20px; border: 1px solid #eee; }
+    .info-pane p { margin: 5px 0; font-size: 14px; }
+
+    input, select { width:100%; height:45px; margin:10px 0; border:1px solid #ddd; border-radius:8px; padding:0 12px; box-sizing:border-box; outline: none; }
+    input:focus { border-color: var(--primary-red); }
+
+    .btn { width:100%; padding:14px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size: 14px; transition: 0.2s; }
+    .btn-checkout { background: var(--primary-red); color:white; margin-bottom: 10px; }
+    .btn-checkout:hover { background: #e32d50; }
+    .btn-close { background:#f0f0f0; color:#555; }
+    .btn-close:hover { background: #e5e5e5; }
+
+    #loading-state { font-weight: bold; color: #666; }
 </style>
 </head>
 <body>
 
 <div class="sidebar">
-  <div class="logo">HotelApp</div>
-  <ul>
-    <li onclick="goPage('index.html')">🏠 Dashboard</li>
-    <li onclick="goPage('rooms.html')">🛏️ Rooms</li>
-    <li onclick="goPage('form.html')">👤 Guests</li>
-    <li onclick="goPage('payments.html')">💳 Payments</li>
-    <li onclick="goPage('settings.html')">⚙️ Settings</li>
-  </ul>
+    <div class="logo">HotelApp</div>
+    <ul>
+        <li onclick="goPage('index.html')">🏠 Dashboard</li>
+        <li onclick="goPage('rooms.html')">🛏️ Rooms</li>
+        <li onclick="goPage('form.html')">👤 Guests</li>
+        <li onclick="goPage('payments.html')">💳 Payments</li>
+        <li onclick="goPage('settings.html')">⚙️ Settings</li>
+    </ul>
 </div>
 
 <div class="main-content">
-  <h1>Room Status</h1>
-  <div class="rooms-container" id="roomsContainer">Fetching current status...</div>
+    <div class="header-row">
+        <h1>Room Status</h1>
+        <div id="loading-state">Syncing with Sheets...</div>
+    </div>
+    <div class="rooms-container" id="roomsContainer">
+        </div>
 </div>
 
 <div class="modal" id="checkoutModal">
     <div class="modal-content">
-        <h2 id="modalTitle">Room Details</h2>
-        <p id="guestInfo" style="font-size:14px; color:#666;"></p>
-        <hr/>
-        <label style="font-size:12px;">Update Checkout Date</label>
+        <h2 id="modalTitle">Room 000</h2>
+        <div class="info-pane" id="guestInfo">
+            </div>
+        
+        <label style="font-size:12px; display:block; text-align:left; font-weight:bold;">CHECKOUT DATE</label>
         <input type="date" id="coDate">
         
-        <label style="font-size:12px;">Payment Method</label>
+        <label style="font-size:12px; display:block; text-align:left; font-weight:bold; margin-top:10px;">FINAL PAYMENT METHOD</label>
         <select id="coPayment">
             <option value="Cash">Cash</option>
             <option value="Card">Card</option>
             <option value="UPI">UPI</option>
         </select>
         
-        <button class="btn btn-checkout" onclick="processCheckout()">CHECKOUT & VACATE</button>
-        <button class="btn btn-close" onclick="closeModal()">Close</button>
+        <button class="btn btn-checkout" id="coBtn" onclick="processCheckout()">CHECKOUT & VACATE</button>
+        <button class="btn btn-close" onclick="closeModal()">CANCEL</button>
     </div>
 </div>
 
 <script>
-/* --- UPDATED CONFIGURATION --- */
+// REPLACE THIS URL WITH YOUR DEPLOYED GOOGLE APPS SCRIPT URL
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzj23Ws9xD4Ik5KaDo3JYJsMnGxO65AAhxuAx1_ffjp1U9ktlEI6DXTzc5akwLig7QF/exec'; 
-let roomList = []; // Filled dynamically from "Rooms" sheet
+
+let roomList = [];
 let activeBookings = {};
 
 function goPage(url) { window.location.href = url; }
 
 async function fetchStatus() {
+    const loader = document.getElementById('loading-state');
     try {
+        loader.innerText = "Checking Sheets...";
         const response = await fetch(`${SCRIPT_URL}?action=getFullStatus`);
         const data = await response.json();
         
-        roomList = data.rooms;         // Now contains data from Rooms!B2:B
-        activeBookings = data.bookings; // Status from your Bookings sheet
+        roomList = data.rooms;         
+        activeBookings = data.bookings; 
         
         renderRooms();
+        loader.innerText = "● System Live";
+        loader.style.color = "#2e7d32";
     } catch (e) {
         console.error("Fetch Error:", e);
-        document.getElementById('roomsContainer').textContent = "Failed to load rooms.";
+        loader.innerText = "X Connection Error";
+        loader.style.color = "red";
+        document.getElementById('roomsContainer').innerHTML = "<p>Could not connect to Google Sheets. Please check your Script URL and Deployment.</p>";
     }
 }
 
@@ -98,45 +142,61 @@ function renderRooms() {
     const container = document.getElementById('roomsContainer');
     container.innerHTML = '';
 
+    if (!roomList || roomList.length === 0) {
+        container.innerHTML = "<p>No rooms found in Column B of your 'Rooms' sheet.</p>";
+        return;
+    }
+
     roomList.forEach(num => {
-        const isOccupied = activeBookings[num];
+        const booking = activeBookings[num];
+        const isOccupied = !!booking;
+        
         const div = document.createElement('div');
-        div.className = `room-box ${isOccupied ? 'occupied' : ''}`;
-        div.innerHTML = `<span>Room ${num}</span><small style="font-size:10px;">${isOccupied ? 'OCCUPIED' : 'VACANT'}</small>`;
+        div.className = `room-box ${isOccupied ? 'occupied' : 'vacant'}`;
+        div.innerHTML = `
+            <span>Room ${num}</span>
+            <small style="font-size:10px; margin-top:5px;">${isOccupied ? 'OCCUPIED' : 'VACANT'}</small>
+        `;
 
         div.onclick = () => {
             if (isOccupied) {
-                openCheckoutModal(num, activeBookings[num]);
+                openCheckoutModal(num, booking);
             } else {
-                window.location.href = `form.html?room=${num}`;
+                window.location.href = `form.html?room=${encodeURIComponent(num)}`;
             }
         };
         container.appendChild(div);
     });
 }
 
-let currentRoom = "";
 function openCheckoutModal(room, data) {
-    currentRoom = room;
     document.getElementById('checkoutModal').style.display = 'flex';
     document.getElementById('modalTitle').innerText = "Room " + room;
-    document.getElementById('guestInfo').innerText = `Guest: ${data.name}\nCheck-in: ${data.checkin}`;
+    document.getElementById('guestInfo').innerHTML = `
+        <p><strong>Guest:</strong> ${data.name}</p>
+        <p><strong>Check-in:</strong> ${data.checkin}</p>
+    `;
+    // Default checkout to today's date
     document.getElementById('coDate').value = new Date().toISOString().split('T')[0];
+    // Store the row index in the modal for the update
     document.getElementById('checkoutModal').dataset.row = data.row; 
 }
 
 function closeModal() { document.getElementById('checkoutModal').style.display = 'none'; }
 
 async function processCheckout() {
-    const btn = document.querySelector('.btn-checkout');
+    const btn = document.getElementById('coBtn');
     const rowId = document.getElementById('checkoutModal').dataset.row;
     const date = document.getElementById('coDate').value;
     const pay = document.getElementById('coPayment').value;
 
-    btn.innerText = "Processing...";
+    if(!date) return alert("Select checkout date");
+
+    btn.innerText = "Vacating Room...";
     btn.disabled = true;
 
     try {
+        // Send checkout command to Apps Script
         await fetch(SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -147,14 +207,17 @@ async function processCheckout() {
                 payment: pay
             })
         });
-        alert("Checkout Complete!");
+        
+        alert("Success! Room is now vacant.");
         location.reload();
     } catch (e) {
-        alert("Error during checkout");
+        alert("Checkout failed. Check internet connection.");
+        btn.innerText = "CHECKOUT & VACATE";
         btn.disabled = false;
     }
 }
 
+// Start fetching as soon as the page loads
 window.onload = fetchStatus;
 </script>
 </body>
