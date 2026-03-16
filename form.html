@@ -145,7 +145,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyKZK33Y2Pi3iXvSaAh2nRTp1NabxMMkmXtjIt-Ssest5SOB87GZNhoZsEhyWJ7_jvm/exec'; 
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwlO2Og39ZohBdQiz7Jy5F5H90yrFQM52P4cUz6hEbGrh5e0caLE91s7Um_NmOq0n63/exec'; 
     let selectedMethod = "";
 
     function goPage(url) { window.location.href = url; }
@@ -257,12 +257,14 @@
                 });
             }
             guests.push({
-                name: row.querySelector('.name').value,
-                mobile: row.querySelector('.mobile').value,
-                docType: row.querySelector('.doctype').value,
-                docNumber: row.querySelector('.docnumber').value,
-                fileData: base64, fileName: fileInput.name, fileType: fileInput.type
-            });
+    name: row.querySelector('.name').value,
+    mobile: row.querySelector('.mobile').value,
+    docType: row.querySelector('.doctype').value,
+    docNumber: row.querySelector('.docnumber').value,
+    fileData: base64,
+    fileName: fileInput ? fileInput.name : "",
+    fileType: fileInput ? fileInput.type : ""
+});
         }
 
         const payload = {
@@ -271,15 +273,26 @@
             checkout: fmtDate(document.getElementById('checkout').value),
             method: selectedMethod, guests: guests
         };
-
-        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) })
-        .then(() => {
-            document.getElementById('successMsg').style.display = 'block';
-            setTimeout(() => window.location.href = 'rooms.html', 2000);
-        }).catch(() => {
-            alert("Error saving data");
-            finishBtn.disabled = false; finishBtn.innerText = "FINALIZE BOOKING";
-        });
+fetch(SCRIPT_URL, {
+    method: "POST",
+    mode: "cors",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+})
+.then(res => res.json())
+.then(data => {
+    console.log(data);
+    document.getElementById('successMsg').style.display = 'block';
+    setTimeout(() => window.location.href = 'rooms.html', 2000);
+})
+.catch(err => {
+    console.error(err);
+    alert("Error saving data");
+    finishBtn.disabled = false;
+    finishBtn.innerText = "FINALIZE BOOKING";
+});
     }
 </script>
 </body>
