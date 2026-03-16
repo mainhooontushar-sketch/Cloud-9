@@ -1,87 +1,62 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard</title>
-<!-- Google Font -->
-<link href="https://fonts.cdnfonts.com/css/glacial-indifference-2" rel="stylesheet">
-<style>
-body {
-  margin: 0;
-  font-family: 'Glacial Indifference', sans-serif;
-  background: #f6f7fb;
-}
-
-/* Sidebar */
-.sidebar {
-  width: 220px;
-  height: 100vh;
-  background: #fff;
-  border-right: 1px solid #ddd;
-  position: fixed;
-  top: 0;
-  left: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.sidebar .logo {
-  font-weight: bold;
-  font-size: 20px;
-  padding: 20px;
-  border-bottom: 1px solid #ddd;
-}
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  flex: 1;
-}
-
-.sidebar ul li {
-  padding: 15px 20px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.sidebar ul li:hover {
-  background: #f2f2f2;
-}
-
-/* Main content */
-.main-content {
-  margin-left: 220px;
-  padding: 30px;
-}
-</style>
+    <title>Isolated Upload Test</title>
+    <style>
+        body { font-family: sans-serif; padding: 50px; text-align: center; }
+        .box { border: 2px dashed #ccc; padding: 30px; border-radius: 10px; display: inline-block; }
+        #status { margin-top: 20px; font-weight: bold; color: blue; }
+    </style>
 </head>
 <body>
 
-<!-- Sidebar -->
-<div class="sidebar">
-  <div class="logo">HotelApp</div>
-  <ul>
-    <li onclick="goPage('index.html')">🏠 Dashboard</li>
-    <li onclick="goPage('rooms.html')">🛏️ Rooms</li>
-    <li onclick="goPage('form.html')">👤 Guests</li>
-    <li onclick="goPage('payments.html')">💳 Payments</li>
-    <li onclick="goPage('settings.html')">⚙️ Settings</li>
-  </ul>
-</div>
+    <div class="box">
+        <h3>Drive Upload Tester</h3>
+        <input type="file" id="testFile"><br><br>
+        <button onclick="startTest()">UPLOAD TO GOOGLE DRIVE</button>
+        <div id="status">Ready</div>
+    </div>
 
-<!-- Main content -->
-<div class="main-content">
-  <h1>Dashboard</h1>
-  <p>Welcome to your hotel booking dashboard!</p>
-</div>
+    <script>
+        // PASTE YOUR NEW WEB APP URL HERE
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzh4xKJhdlYcjlD_xaa25BzK5uiwuHFk3YcMYrOfJyfa_W9z8vtIvFO7SMb0xkBOSXx/exec";
 
-<script>
-function goPage(url) {
-  window.location.href = url;
-}
-</script>
+        async function startTest() {
+            const fileInput = document.getElementById('testFile');
+            const status = document.getElementById('status');
+            
+            if (!fileInput.files[0]) return alert("Select a file first");
 
+            status.innerText = "Uploading... please wait";
+            status.style.color = "orange";
+
+            const file = fileInput.files[0];
+            
+            // Pass metadata in the URL to avoid CORS "Preflight"
+            const params = new URLSearchParams({
+                filename: file.name,
+                mimeType: file.type
+            });
+
+            try {
+                const response = await fetch(`${SCRIPT_URL}?${params}`, {
+                    method: "POST",
+                    body: file, // Sending the raw file object
+                    mode: "no-cors" // Essential for testing locally or on GitHub
+                });
+
+                // Note: With no-cors, we can't read the JSON response, 
+                // but we can check if it finished.
+                status.innerText = "Upload Triggered! Check your Google Drive Folder.";
+                status.style.color = "green";
+
+            } catch (err) {
+                status.innerText = "Error: " + err.message;
+                status.style.color = "red";
+            }
+        }
+    </script>
 </body>
 </html>
+
