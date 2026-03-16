@@ -72,7 +72,7 @@
 </div>
 
 <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
-<script async defer src="https://accounts.google.com/g/api/js" onload="gisLoaded()"></script>
+<script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 
 <script>
 /* --- UI LOGIC --- */
@@ -83,10 +83,9 @@ function showSection(id, el) {
   el.classList.add('active');
 }
 
-/* --- API CONFIGURATION --- */
-const CLIENT_ID = 'YOUR_CLIENT_ID_HERE';
+/* --- AUTH CONFIGURATION --- */
+const CLIENT_ID = 'YOUR_CLIENT_ID_HERE'; 
 const API_KEY = 'YOUR_API_KEY_HERE';
-const FOLDER_ID = '1U-sS_Pcr_Al7Thd9VfMYhBph57whAick';
 const SCOPES = 'https://www.googleapis.com/auth/drive.file';
 
 let tokenClient;
@@ -95,55 +94,41 @@ let gisInited = false;
 
 function gapiLoaded() {
   gapi.load('client', async () => {
-    await gapi.client.init({ apiKey: API_KEY, discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'] });
-    gapiInited = true; checkReady();
+    await gapi.client.init({
+      apiKey: API_KEY,
+      discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+    });
+    gapiInited = true;
+    checkReady();
   });
 }
 
 function gisLoaded() {
-  tokenClient = google.accounts.oauth2.initTokenClient({ client_id: CLIENT_ID, scope: SCOPES, callback: '' });
-  gisInited = true; checkReady();
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: (tokenResponse) => {
+      if (tokenResponse && tokenResponse.access_token) {
+        document.getElementById('upload_button').disabled = false;
+        document.getElementById('status').innerText = "✅ Authenticated! Token Received.";
+        document.getElementById('status').style.color = "green";
+      }
+    },
+  });
+  gisInited = true;
+  checkReady();
 }
 
 function checkReady() {
-  if (gapiInited && gisInited) document.getElementById('status').innerText = "Libraries Ready. Please Authorize.";
+  if (gapiInited && gisInited) {
+    document.getElementById('status').innerText = "Libraries Ready. Please Authorize.";
+  }
 }
 
 document.getElementById('auth_button').onclick = () => {
-  tokenClient.callback = async (resp) => {
-    if (resp.error) throw resp;
-    document.getElementById('upload_button').disabled = false;
-    document.getElementById('status').innerText = "✅ Authenticated! Select a file.";
-  };
+  // This triggers the Google Login Popup
   tokenClient.requestAccessToken({prompt: 'consent'});
 };
-
-async function uploadFile() {
-  const file = document.getElementById('testFile').files[0];
-  if (!file) return alert("Select a file first");
-  const status = document.getElementById('status');
-  status.innerText = "🚀 Uploading...";
-
-  const metadata = { 'name': file.name, 'parents': [FOLDER_ID] };
-  const form = new FormData();
-  form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}));
-  form.append('file', file);
-
-  try {
-    const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-      method: 'POST',
-      headers: new Headers({'Authorization': 'Bearer ' + gapi.client.getToken().access_token}),
-      body: form
-    });
-    const result = await response.json();
-    status.innerText = "⭐ Success! ID: " + result.id;
-    status.style.color = "green";
-  } catch (err) {
-    status.innerText = "❌ Error: " + err.message;
-    status.style.color = "red";
-  }
-}
-document.getElementById('upload_button').onclick = uploadFile;
 </script>
 
 </body>
