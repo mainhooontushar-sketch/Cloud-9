@@ -50,7 +50,7 @@
         .upload-btn input { display: none; }
         .upload-btn.success { background-color: #e8f5e9 !important; border-color: #a5d6a7 !important; color: #2e7d32 !important; }
 
-        #splitArea { background: #fff; padding: 15px; border: 1px solid #eee; margin-top: 12px; }
+        #splitArea { background: #fff; padding: 15px; border: 1px solid #eee; margin-top: 12px; display: none; }
         .split-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
     </style>
 </head>
@@ -125,14 +125,14 @@
             <div class="pay-btn" id="paySplit" onclick="selPay('Split Payment')">Split Pay</div>
         </div>
 
-        <div id="splitArea" style="display:none;">
+        <div id="splitArea">
             <label style="font-size:10px; font-weight:bold; color: var(--primary-red);">SPLIT DETAILS</label>
             <div class="split-row" style="margin-top:5px;">
-                <select id="sm1"><option>UPI</option><option>Cash</option></select>
+                <select id="sm1"><option value="UPI">UPI</option><option value="Cash">Cash</option><option value="Card">Card</option></select>
                 <input type="number" id="sa1" placeholder="Paid ₹">
             </div>
             <div class="split-row">
-                <select id="sm2"><option>Credit</option><option>Cash</option></select>
+                <select id="sm2"><option value="Credit">Credit</option><option value="Cash">Cash</option><option value="UPI">UPI</option></select>
                 <input type="number" id="sa2" placeholder="Due ₹">
             </div>
         </div>
@@ -144,7 +144,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxcSrlrx6mB26ORq3k_x5awGmJUp9jyrgPAjqMPClLtpDo-sMocC-DaMjVgkYxXDmND/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxgrBuLWJTjkikq7KYQOup4JlUJmJwfPwgrRIfITe8ejbCm2EU2lK5vMY3-dMP-WHP2/exec';
     const CLOUD_NAME = 'dhnadl2xv'; 
     const UPLOAD_PRESET = 'Cloud 9';
     
@@ -174,8 +174,13 @@
     function selPay(m) {
         document.getElementById('finalMethod').value = m;
         document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('pay' + m.replace(/\s+/g, '')).classList.add('active');
-        document.getElementById('splitArea').style.display = (m === 'Split Payment') ? 'block' : 'none';
+        // Standardize class finding
+        let cleanId = 'pay' + m.replace(/\s+/g, '');
+        document.getElementById(cleanId).classList.add('active');
+        
+        // Show/Hide Split Area explicitly
+        const splitArea = document.getElementById('splitArea');
+        splitArea.style.display = (m === 'Split Payment') ? 'block' : 'none';
     }
 
     function addGuest() {
@@ -243,14 +248,20 @@
         let pAmt = totalBill, dAmt = 0;
 
         if (m === 'Split Payment') {
-            const m1 = document.getElementById('sm1').value;
-            const a1 = parseInt(document.getElementById('sa1').value) || 0;
-            const m2 = document.getElementById('sm2').value;
-            const a2 = parseInt(document.getElementById('sa2').value) || 0;
-            pAmt = (m1 !== 'Credit' ? a1 : 0) + (m2 !== 'Credit' ? a2 : 0);
-            dAmt = (m1 === 'Credit' ? a1 : 0) + (m2 === 'Credit' ? a2 : 0);
-            m = `Split (${m1}: ₹${a1}, ${m2}: ₹${a2})`;
-        } else if (m === 'Credit') { pAmt = 0; dAmt = totalBill; }
+            const mode1 = document.getElementById('sm1').value;
+            const amt1 = parseInt(document.getElementById('sa1').value) || 0;
+            const mode2 = document.getElementById('sm2').value;
+            const amt2 = parseInt(document.getElementById('sa2').value) || 0;
+            
+            // Logic: Calculate how much is actually PAID vs what is DUE (Credit)
+            pAmt = (mode1 !== 'Credit' ? amt1 : 0) + (mode2 !== 'Credit' ? amt2 : 0);
+            dAmt = (mode1 === 'Credit' ? amt1 : 0) + (mode2 === 'Credit' ? amt2 : 0);
+            
+            m = `Split (${mode1}: ₹${amt1}, ${mode2}: ₹${amt2})`;
+        } else if (m === 'Credit') {
+            pAmt = 0; 
+            dAmt = totalBill; 
+        }
 
         const payload = {
             bookingId: document.getElementById('bookingId').value,
@@ -261,9 +272,9 @@
             paidAmt: pAmt,
             dueAmt: dAmt,
             method: m,
-            food: srvTotals.Food || "NO SERVICE AVAILED",
-            water: srvTotals.Water || "NO SERVICE AVAILED",
-            other: srvTotals.Other || "NO SERVICE AVAILED",
+            food: srvTotals.Food || "0",
+            water: srvTotals.Water || "0",
+            other: srvTotals.Other || "0",
             guests: guests
         };
 
