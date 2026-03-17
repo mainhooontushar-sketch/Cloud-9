@@ -36,7 +36,7 @@
         .btn-delete { background: #ffeded; color: #ff385c; width: 35px; height: 35px; position: absolute; right: -10px; top: -10px; border-radius: 50% !important; border: 1px solid #ffccd5; }
 
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
-        .modal-content { background: #fff; padding: 30px; width: 480px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .modal-content { background: #fff; padding: 30px; width: 480px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 95vh; overflow-y: auto; }
         
         .billing-box { background: #f9f9f9; padding: 15px; margin: 15px 0; border: 1px solid #eee; }
         .bill-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
@@ -64,7 +64,6 @@
         <li onclick="location.href='index.html'">🏠 Dashboard</li>
         <li onclick="location.href='rooms.html'">🛏️ Rooms</li>
         <li onclick="location.href='form.html'">👤 Guests</li>
-        <li onclick="location.href='payments.html'">💳 Payments</li>
     </ul>
 </div>
 
@@ -145,7 +144,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyQe8vZIBJVAF0n9DyWVcos9GWP7JitixDiP-l80VfygHIDsIJMKRc42DfX3MFH3U9q/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxcSrlrx6mB26ORq3k_x5awGmJUp9jyrgPAjqMPClLtpDo-sMocC-DaMjVgkYxXDmND/exec';
     const CLOUD_NAME = 'dhnadl2xv'; 
     const UPLOAD_PRESET = 'Cloud 9';
     
