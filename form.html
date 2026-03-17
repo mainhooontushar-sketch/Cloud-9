@@ -130,7 +130,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWrzKGG7_H7sHOkJHa7sjCobQ8mUMIUP3I6mipmBdgBeJJRUCdArudfubWY0pyvHZh/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxlzfsL0vl1dX5ksIj8nMRFSn5Ob4I5BZvw2yVhn4Zyg_qGzNrfQR0CXaaZ-cK0jjsN/exec';
     const CLOUD_NAME = 'dhnadl2xv'; 
     const UPLOAD_PRESET = 'Cloud 9';
     
@@ -139,7 +139,7 @@
     let CURRENT_ROOM_PRICE = 0;
 
     window.onload = async () => {
-        // NEW BOOKING ID LOGIC: CL01-RandomNumber
+        // BOOKING ID: Starts from CL01 to CL09 + Random
         const prefixNum = Math.floor(Math.random() * 9) + 1; 
         const prefix = "CL" + prefixNum.toString().padStart(2, '0');
         const randomSuffix = Math.floor(1000 + Math.random() * 9000);
