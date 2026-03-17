@@ -1,89 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guest Entry - HotelApp</title>
-<link href="https://fonts.cdnfonts.com/css/glacial-indifference-2" rel="stylesheet">
-<style>
-    :root {
-        --primary-red: #ff385c;
-        --bg-gray: #f6f7fb;
-        --sidebar-width: 220px;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest Entry - HotelApp</title>
+    <link href="https://fonts.cdnfonts.com/css/glacial-indifference-2" rel="stylesheet">
+    <style>
+        :root { --primary-red: #ff385c; --bg-gray: #f6f7fb; --sidebar-width: 220px; }
+        body, input, select, button { font-family: 'Glacial Indifference', sans-serif; }
+        body { margin: 0; background: var(--bg-gray); color: #333; font-size: 14px; }
 
-    /* Updated font-family to match the first page */
-    body, input, select, button {
-        font-family: 'Glacial Indifference', sans-serif;
-    }
+        /* Universal 8px Design */
+        input, select, .btn, .container, .guest-card, .modal-content, .billing-box, .pay-btn, .upload-btn, #splitArea { 
+            border-radius: 8px !important; 
+        }
 
-    body { margin: 0; background: var(--bg-gray); color: #333; }
+        input, select { height: 45px; width: 100%; border: 1px solid #ddd; padding: 0 15px; outline: none; box-sizing: border-box; }
+        input:focus { border-color: var(--primary-red); }
+        select { appearance: none; background: #fff url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ff385c' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E") no-repeat right 15px center; cursor: pointer; }
 
-    select {
-        appearance: none; -webkit-appearance: none; -moz-appearance: none;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ff385c' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 12px center;
-        background-color: #fff;
-        cursor: pointer;
-    }
+        /* Sidebar */
+        .sidebar { width: var(--sidebar-width); height:100vh; background:#fff; border-right:1px solid #ddd; position:fixed; top:0; left:0; display:flex; flex-direction:column; z-index: 100;}
+        .sidebar .logo { font-weight:bold; font-size:20px; padding:20px; border-bottom:1px solid #ddd; color: var(--primary-red); }
+        .sidebar ul { list-style:none; padding:0; margin:0; flex:1; }
+        .sidebar ul li { padding:15px 20px; cursor:pointer; transition: 0.2s; border-left: 4px solid transparent; }
+        .sidebar ul li:hover { background:#f9f9f9; border-left: 4px solid var(--primary-red); }
 
-    /* Updated Sidebar to match exact Room Status styles */
-    .sidebar { 
-        width: var(--sidebar-width); height:100vh; background:#fff; 
-        border-right:1px solid #ddd; position:fixed; top:0; left:0; 
-        display:flex; flex-direction:column; z-index: 100;
-    }
-    .sidebar .logo { font-weight:bold; font-size:20px; padding:20px; border-bottom:1px solid #ddd; color: var(--primary-red); }
-    .sidebar ul { list-style:none; padding:0; margin:0; flex:1; }
-    .sidebar ul li { 
-        padding:15px 20px; cursor:pointer; transition: 0.2s; 
-        border-left: 4px solid transparent; 
-    }
-    .sidebar ul li:hover { background:#f9f9f9; border-left: 4px solid var(--primary-red); color: #333; }
+        .main-content { margin-left: var(--sidebar-width); padding: 40px; }
+        .container { background: #fff; padding: 35px; border: 1px solid #ddd; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 1000px; margin: auto; }
 
-    .upload-btn.success {
-        background-color: #e8f5e9 !important;
-        color: #2e7d32 !important;
-        border-color: #a5d6a7 !important;
-    }
+        h2 { margin-top: 0; font-size: 26px; }
+        .top-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .guest-card { background: #fafafa; border: 1px solid #eee; padding: 20px; margin-bottom: 15px; position: relative; }
+        .guest-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.2fr 1.2fr; gap: 12px; }
 
-    .main-content { margin-left: var(--sidebar-width); padding: 40px; }
-    .container {
-        background: #fff; padding: 30px; border-radius: 15px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05); max-width: 1100px; margin: auto;
-    }
+        .btn { border: none; cursor: pointer; font-weight: bold; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+        .btn-add { background: #f0f0f0; padding: 10px 25px; margin-bottom: 20px; color: #555; }
+        .btn-save { background: var(--primary-red); color: #fff; padding: 15px 35px; width: 100%; font-size: 16px; margin-top: 10px; }
+        .btn-delete { background: #ffeded; color: #ff385c; width: 30px; height: 30px; position: absolute; right: -10px; top: -10px; border-radius: 50% !important; font-size: 14px; border: 1px solid #ffccd5; }
 
-    h2 { margin-top: 0; color: #111; font-size: 28px; } /* Matched H1 font size from previous page */
-    .top-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        /* Modal */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
+        .modal-content { background: #fff; padding: 30px; width: 480px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 95vh; overflow-y: auto; }
+        
+        .billing-box { background: #f9f9f9; padding: 15px; margin: 15px 0; border: 1px solid #eee; }
+        .bill-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+        .bill-total { border-top: 2px dashed #ddd; padding-top: 10px; margin-top: 10px; font-weight: bold; font-size: 22px; color: var(--primary-red); }
+        
+        .pay-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .pay-btn { padding: 12px; border: 1px solid #ddd; cursor: pointer; font-weight: bold; text-align: center; background: white; font-size: 13px; }
+        .pay-btn.active { background: var(--primary-red); color: white; border-color: var(--primary-red); }
 
-    .guest-card { background: #fafafa; border: 1px solid #eee; padding: 20px; border-radius: 10px; margin-bottom: 15px; }
-    .guest-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.2fr 1.2fr 45px; gap: 12px; align-items: start; }
+        .upload-btn { background: #eee; height: 45px; width: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; font-weight: bold; border: 1px solid #ddd; }
+        .upload-btn input { display: none; }
+        .upload-btn.success { background-color: #e8f5e9 !important; border-color: #a5d6a7 !important; color: #2e7d32 !important; }
 
-    input, select { height: 45px; width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 0 12px; font-size: 14px; outline: none; box-sizing: border-box; }
-    input:focus { border-color: var(--primary-red); }
-
-    .upload-btn { background: #eee; height: 45px; width: 100%; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; text-align: center; box-sizing: border-box; border: 1px solid #ddd; }
-    .upload-btn input { display: none; }
-    .filename { font-size: 10px; color: #666; margin-top: 4px; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-
-    .btn { border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-    .btn-add { background: #f0f0f0; padding: 10px 20px; margin-bottom: 20px; color: #555; }
-    .btn-add:hover { background: #e5e5e5; }
-    .btn-save { background: var(--primary-red); color: #fff; padding: 15px 30px; width: 100%; font-size: 16px; margin-top: 10px; }
-    .btn-save:hover { background: #e32d50; }
-    .btn-delete { background: #ffeded; color: #ff385c; width: 100%; height: 45px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-
-    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(3px); }
-    .modal-content { background: #fff; padding: 30px; width: 380px; border-radius: 15px; text-align: center; box-shadow:0 15px 35px rgba(0,0,0,0.2); }
-    .pay-options { display: flex; gap: 10px; margin: 20px 0; }
-    .pay-btn { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; font-weight: bold; }
-    .pay-btn.active { background: var(--primary-red); color: white; border-color: var(--primary-red); }
-    #qrBox img { width: 180px; margin: 15px 0; }
-    .success-msg { display: none; color: #2e7d32; font-weight: bold; margin-top: 15px; }
-</style>
+        #splitArea { background: #fff; padding: 15px; border: 1px solid #eee; margin-top: 12px; }
+        .split-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    </style>
 </head>
 <body>
+
+<input type="hidden" id="bookingId">
 
 <div class="sidebar">
     <div class="logo">HotelApp</div>
@@ -100,9 +78,9 @@
     <div class="container">
         <h2>Guest Registration</h2>
         <div class="top-row">
-            <div><label style="font-size: 12px; font-weight: bold;">ROOM NUMBER</label><input id="roomNo" readonly style="background: #f0f0f0;"></div>
-            <div><label style="font-size: 12px; font-weight: bold;">CHECK-IN</label><input id="checkin" type="date"></div>
-            <div><label style="font-size: 12px; font-weight: bold;">CHECK-OUT (OPTIONAL)</label><input id="checkout" type="date"></div>
+            <div><label style="font-size: 11px; font-weight: bold;">ROOM NUMBER</label><input id="roomNo" readonly style="background: #f0f0f0;"></div>
+            <div><label style="font-size: 11px; font-weight: bold;">CHECK-IN</label><input id="checkin" type="date"></div>
+            <div><label style="font-size: 11px; font-weight: bold;">CHECK-OUT (OPTIONAL)</label><input id="checkout" type="date"></div>
         </div>
 
         <div id="guestContainer">
@@ -110,167 +88,193 @@
                 <div class="guest-grid">
                     <input class="name" placeholder="Full Name">
                     <input class="mobile" placeholder="Mobile" maxlength="10">
-                    <select class="doctype">
-                        <option>AADHAAR</option>
-                        <option>PASSPORT</option>
-                        <option>DRIVING LICENSE</option>
-                    </select>
+                    <select class="doctype"><option>AADHAAR</option><option>PASSPORT</option></select>
                     <input class="docnumber" placeholder="ID Number">
-                    <div>
-                        <label class="upload-btn">📁 ID UPLOAD <input type="file" class="docfile" onchange="updateFileName(this)"></label>
-                        <div class="filename">No file chosen</div>
-                    </div>
-                    <div style="width: 45px;"></div>
+                    <div><label class="upload-btn">📁 ID UPLOAD <input type="file" class="docfile" onchange="this.parentElement.classList.add('success')"></label></div>
                 </div>
             </div>
         </div>
 
         <button class="btn btn-add" onclick="addGuest()">+ Add Extra Guest</button>
-        <button class="btn btn-save" onclick="validateAndPay()">PROCEED TO PAYMENT</button>
+        <button class="btn btn-save" onclick="openBilling()">PROCEED TO BILLING</button>
     </div>
 </div>
 
-<div class="modal" id="paymentModal">
+<div class="modal" id="billingModal">
     <div class="modal-content">
-        <h3 style="margin-top:0;">Payment Method</h3>
-        <div class="pay-options">
-            <div class="pay-btn" onclick="selectPay(this, 'Cash')">Cash</div>
-            <div class="pay-btn" onclick="selectPay(this, 'Card')">Card</div>
-            <div class="pay-btn" onclick="selectPay(this, 'UPI')">UPI</div>
+        <h2 style="margin-top:0; color: var(--primary-red); text-align: center;">Billing</h2>
+        
+        <div style="display: flex; gap: 8px; align-items: flex-end; margin-top: 10px;">
+            <div style="flex:2;"><label style="font-size:10px; font-weight:bold;">SERVICE</label>
+                <select id="srvType"><option value="Food">Food</option><option value="Water">Water</option><option value="Other">Other</option></select>
+            </div>
+            <div style="flex:1;"><label style="font-size:10px; font-weight:bold;">AMOUNT</label>
+                <input type="number" id="srvAmt" placeholder="0">
+            </div>
+            <button class="btn" style="height:45px; padding:0 15px; border:1px solid #ddd; background:#eee;" onclick="addSrv()">ADD</button>
         </div>
-        <div id="qrBox" style="display:none;">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay">
-            <p style="font-size:12px;">Scan to Pay</p>
+
+        <div class="billing-box">
+            <div class="bill-row"><span>Room Rent (<span id="bDays">1</span> days)</span> <span id="bRent">₹0</span></div>
+            <div id="srvItems"></div>
+            <div class="bill-row" style="margin-top:10px; border-top: 1px solid #eee; padding-top:10px; align-items:center;">
+                <span>Discount (₹)</span>
+                <input type="number" id="bDisc" value="0" style="width:100px; height:35px; text-align:right;" oninput="recalc()">
+            </div>
+            <div class="bill-row bill-total"><span>Total Bill</span> <span id="totalText">₹0</span></div>
         </div>
-        <button class="btn btn-save" id="finalizeBtn" style="margin-top:10px;" onclick="completeBooking()">FINALIZE BOOKING</button>
-        <button class="btn btn-add" style="width:100%; margin-top:10px;" onclick="closeModal()">CANCEL</button>
-        <div class="success-msg" id="successMsg">🎉 Booking Successful!</div>
+
+        <label style="font-size:10px; font-weight: bold;">PAYMENT METHOD</label>
+        <div class="pay-btn-grid">
+            <div class="pay-btn active" id="payCash" onclick="selPay('Cash')">Cash</div>
+            <div class="pay-btn" id="payUPI" onclick="selPay('UPI')">UPI</div>
+            <div class="pay-btn" id="payCredit" onclick="selPay('Credit')">Credit</div>
+            <div class="pay-btn" id="paySplit" onclick="selPay('Split Payment')">Split Pay</div>
+        </div>
+
+        <div id="splitArea" style="display:none;">
+            <label style="font-size:10px; font-weight:bold; color: var(--primary-red);">SPLIT DETAILS</label>
+            <div class="split-row" style="margin-top:5px;">
+                <select id="sm1"><option>UPI</option><option>Cash</option><option>Card</option></select>
+                <input type="number" id="sa1" placeholder="Paid ₹">
+            </div>
+            <div class="split-row">
+                <select id="sm2"><option>Credit</option><option>Cash</option><option>UPI</option></select>
+                <input type="number" id="sa2" placeholder="Due ₹">
+            </div>
+        </div>
+
+        <input type="hidden" id="finalMethod" value="Cash">
+        <button class="btn btn-save" id="finalizeBtn" onclick="submitData()">FINALIZE BOOKING</button>
+        <button style="width:100%; border:none; background:none; color:#999; margin-top:15px; cursor:pointer;" onclick="closeModal()">CANCEL</button>
     </div>
 </div>
 
 <script>
-    /* JavaScript logic remains exactly the same as provided */
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyvPO12I_lxbcynSaIM90VbbkjZ3gyTPDUGOR3rsAClVPzifsWaVDwhXRUIfqYaBbnb/exec';
+    const SCRIPT_URL = 'YOUR_GOOGLE_SCRIPT_DEPLOYMENT_URL';
     const CLOUD_NAME = 'dhnadl2xv'; 
     const UPLOAD_PRESET = 'Cloud 9';
+    const RENT_PER_DAY = 1500; 
 
-    let selectedMethod = "";
-
-    function goPage(url) { window.location.href = url; }
+    let srvTotals = { Food: 0, Water: 0, Other: 0 };
+    let totalBill = 0;
 
     window.onload = () => {
+        document.getElementById('bookingId').value = `CL9-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
         const params = new URLSearchParams(window.location.search);
         if(params.get('room')) document.getElementById('roomNo').value = params.get('room');
-        const now = new Date();
-        const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
-        const cin = document.getElementById('checkin');
-        const cout = document.getElementById('checkout');
-        cin.min = today; cin.value = today;
-        cin.addEventListener('change', function() { cout.min = this.value; });
+        document.getElementById('checkin').value = new Date().toISOString().split('T')[0];
+        document.getElementById('checkin').addEventListener('change', recalc);
+        document.getElementById('checkout').addEventListener('change', recalc);
+        recalc();
     };
 
-    function updateFileName(input) {
-        const label = input.parentElement;
-        const filenameDisplay = label.nextElementSibling;
-        if (input.files.length > 0) {
-            filenameDisplay.innerText = "Ready to upload";
-            label.classList.add('success');
-            label.childNodes[0].nodeValue = "✅ READY "; 
-        }
+    function goPage(u) { window.location.href = u; }
+    function closeModal() { document.getElementById('billingModal').style.display = 'none'; }
+    function openBilling() { document.getElementById('billingModal').style.display = 'flex'; recalc(); }
+
+    function selPay(m) {
+        document.getElementById('finalMethod').value = m;
+        document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('pay' + m.replace(/\s+/g, '')).classList.add('active');
+        document.getElementById('splitArea').style.display = (m === 'Split Payment') ? 'block' : 'none';
     }
 
     function addGuest() {
-        const container = document.getElementById('guestContainer');
-        if(container.children.length >= 2) return alert("Max 2 guests per room.");
-        const row = document.createElement('div');
-        row.className = 'guest-card';
-        row.innerHTML = `
-            <div class="guest-grid">
-                <input class="name" placeholder="Full Name">
-                <input class="mobile" placeholder="Mobile" maxlength="10">
-                <select class="doctype"><option>AADHAAR</option><option>PASSPORT</option><option>DRIVING LICENSE</option></select>
-                <input class="docnumber" placeholder="ID Number">
-                <div>
-                    <label class="upload-btn">📁 ID UPLOAD <input type="file" class="docfile" onchange="updateFileName(this)"></label>
-                    <div class="filename">No file chosen</div>
-                </div>
-                <button class="btn btn-delete" onclick="this.closest('.guest-card').remove()">✕</button>
-            </div>`;
-        container.appendChild(row);
+        const c = document.getElementById('guestContainer');
+        if(c.children.length >= 2) return;
+        const d = document.createElement('div');
+        d.className = 'guest-card';
+        d.innerHTML = `<div class="guest-grid"><input class="name" placeholder="Name"><input class="mobile" placeholder="Mobile"><select class="doctype"><option>AADHAAR</option></select><input class="docnumber" placeholder="ID No"><div><label class="upload-btn">📁 ID <input type="file" class="docfile" onchange="this.parentElement.classList.add('success')"></label></div></div><button class="btn btn-delete" onclick="this.parentElement.remove()">✕</button>`;
+        c.appendChild(d);
     }
 
-    function validateAndPay() {
-        const room = document.getElementById('roomNo').value;
-        const cin = document.getElementById('checkin').value;
-        if (!room || !cin) return alert("Please fill Room Number and Check-in Date");
-        document.getElementById('paymentModal').style.display = 'flex';
+    function addSrv() {
+        const t = document.getElementById('srvType').value;
+        const a = parseInt(document.getElementById('srvAmt').value) || 0;
+        if(!a) return;
+        srvTotals[t] += a;
+        const div = document.createElement('div'); div.className = 'bill-row';
+        div.innerHTML = `<span>+ ${t}</span> <span>₹${a}</span>`;
+        document.getElementById('srvItems').appendChild(div);
+        document.getElementById('srvAmt').value = '';
+        recalc();
     }
 
-    function closeModal() { document.getElementById('paymentModal').style.display = 'none'; }
-
-    function selectPay(el, method) {
-        document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('active'));
-        el.classList.add('active');
-        selectedMethod = method;
-        document.getElementById('qrBox').style.display = (method === 'UPI') ? 'block' : 'none';
+    function recalc() {
+        const cin = new Date(document.getElementById('checkin').value);
+        const coutVal = document.getElementById('checkout').value;
+        let days = 1;
+        if(coutVal) {
+            days = Math.ceil(Math.abs(new Date(coutVal) - cin) / (1000 * 60 * 60 * 24)) || 1;
+        }
+        let rent = days * RENT_PER_DAY;
+        document.getElementById('bDays').innerText = days;
+        document.getElementById('bRent').innerText = "₹" + rent;
+        let srvSum = srvTotals.Food + srvTotals.Water + srvTotals.Other;
+        let disc = parseInt(document.getElementById('bDisc').value) || 0;
+        totalBill = (rent + srvSum - disc);
+        document.getElementById('totalText').innerText = "₹" + totalBill;
     }
 
-    async function uploadToCloudinary(fileInput) {
-        if (!fileInput.files[0]) return "No File";
+    async function upload(f) {
+        if(!f.files[0]) return "No File";
         const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
+        formData.append('file', f.files[0]);
         formData.append('upload_preset', UPLOAD_PRESET);
-        try {
-            const resp = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, {
-                method: 'POST',
-                body: formData
-            });
-            const data = await resp.json();
-            return data.secure_url || "Upload Failed";
-        } catch (e) { return "Error: " + e.message; }
+        const r = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, { method: 'POST', body: formData });
+        const d = await r.json(); return d.secure_url;
     }
 
-    async function completeBooking() {
-        if (!selectedMethod) return alert("Select payment method");
+    async function submitData() {
         const btn = document.getElementById('finalizeBtn');
-        btn.innerText = "⏳ Uploading Documents...";
-        btn.disabled = true;
+        btn.innerText = "⏳ Saving..."; btn.disabled = true;
 
-        const guests = document.querySelectorAll('.guest-card');
         const guestList = [];
-        for (let card of guests) {
-            const fileInput = card.querySelector('.docfile');
-            const idUrl = await uploadToCloudinary(fileInput);
+        for (let card of document.querySelectorAll('.guest-card')) {
+            const url = await upload(card.querySelector('.docfile'));
             guestList.push({
                 name: card.querySelector('.name').value,
                 mobile: card.querySelector('.mobile').value,
-                docType: card.querySelector('.doctype').value,
-                docNumber: card.querySelector('.docnumber').value,
-                docUrl: idUrl
+                docUrl: url
             });
+        }
+
+        let m = document.getElementById('finalMethod').value;
+        let pAmt = totalBill, dAmt = 0;
+
+        if (m === 'Split Payment') {
+            const m1 = document.getElementById('sm1').value;
+            const a1 = parseInt(document.getElementById('sa1').value) || 0;
+            const m2 = document.getElementById('sm2').value;
+            const a2 = parseInt(document.getElementById('sa2').value) || 0;
+            
+            pAmt = (m1 !== 'Credit' ? a1 : 0) + (m2 !== 'Credit' ? a2 : 0);
+            dAmt = (m1 === 'Credit' ? a1 : 0) + (m2 === 'Credit' ? a2 : 0);
+            m = `Split (${m1}: ₹${a1}, ${m2}: ₹${a2})`;
+        } else if (m === 'Credit') {
+            pAmt = 0; dAmt = totalBill;
         }
 
         const payload = {
+            bookingId: document.getElementById('bookingId').value,
             room: document.getElementById('roomNo').value,
             checkin: document.getElementById('checkin').value,
             checkout: document.getElementById('checkout').value || "OPEN",
-            method: selectedMethod,
+            totalBill: "₹" + totalBill,
+            paidAmt: pAmt,
+            dueAmt: dAmt,
+            method: m,
+            food: srvTotals.Food || "NO SERVICE AVAILED",
+            water: srvTotals.Water || "NO SERVICE AVAILED",
+            other: srvTotals.Other || "NO SERVICE AVAILED",
             guests: guestList
         };
 
-        btn.innerText = "⏳ Saving Guest Info...";
         try {
-            await fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify(payload)
-            });
-            document.getElementById('successMsg').style.display = 'block';
-            setTimeout(() => { window.location.href = 'rooms.html'; }, 2000);
-        } catch (e) {
-            alert("Process completed. Check your spreadsheet.");
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
             window.location.href = 'rooms.html';
-        }
+        } catch(e) { window.location.href = 'rooms.html'; }
     }
 </script>
 </body>
