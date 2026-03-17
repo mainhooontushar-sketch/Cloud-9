@@ -10,7 +10,7 @@
         body, input, select, button { font-family: 'Glacial Indifference', sans-serif; }
         body { margin: 0; background: var(--bg-gray); color: #333; font-size: 14px; }
 
-        /* Universal 8px Design */
+        /* Unified 8px Design */
         input, select, .btn, .container, .guest-card, .modal-content, .billing-box, .pay-btn, .upload-btn, #splitArea { 
             border-radius: 8px !important; 
         }
@@ -37,7 +37,7 @@
         .btn { border: none; cursor: pointer; font-weight: bold; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
         .btn-add { background: #f0f0f0; padding: 10px 25px; margin-bottom: 20px; color: #555; }
         .btn-save { background: var(--primary-red); color: #fff; padding: 15px 35px; width: 100%; font-size: 16px; margin-top: 10px; }
-        .btn-delete { background: #ffeded; color: #ff385c; width: 30px; height: 30px; position: absolute; right: -10px; top: -10px; border-radius: 50% !important; font-size: 14px; border: 1px solid #ffccd5; }
+        .btn-delete { background: #ffeded; color: #ff385c; width: 35px; height: 35px; position: absolute; right: -10px; top: -10px; border-radius: 50% !important; border: 1px solid #ffccd5; }
 
         /* Modal */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
@@ -135,12 +135,12 @@
         <div id="splitArea" style="display:none;">
             <label style="font-size:10px; font-weight:bold; color: var(--primary-red);">SPLIT DETAILS</label>
             <div class="split-row" style="margin-top:5px;">
-                <select id="sm1"><option>UPI</option><option>Cash</option><option>Card</option></select>
-                <input type="number" id="sa1" placeholder="Paid ₹">
+                <select id="sm1"><option>UPI</option><option>Cash</option><option>Card</option><option>Credit</option></select>
+                <input type="number" id="sa1" placeholder="Amount ₹">
             </div>
             <div class="split-row">
-                <select id="sm2"><option>Credit</option><option>Cash</option><option>UPI</option></select>
-                <input type="number" id="sa2" placeholder="Due ₹">
+                <select id="sm2"><option>Cash</option><option>UPI</option><option>Credit</option></select>
+                <input type="number" id="sa2" placeholder="Amount ₹">
             </div>
         </div>
 
@@ -151,22 +151,38 @@
 </div>
 
 <script>
-    const SCRIPT_URL = 'YOUR_GOOGLE_SCRIPT_DEPLOYMENT_URL';
+    const SCRIPT_URL = 'PASTE_YOUR_APPS_SCRIPT_URL_HERE';
     const CLOUD_NAME = 'dhnadl2xv'; 
     const UPLOAD_PRESET = 'Cloud 9';
-    const RENT_PER_DAY = 1500; 
-
+    
     let srvTotals = { Food: 0, Water: 0, Other: 0 };
     let totalBill = 0;
+    let CURRENT_ROOM_PRICE = 0; 
 
-    window.onload = () => {
+    window.onload = async () => {
+        // Background Booking ID
         document.getElementById('bookingId').value = `CL9-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+        
         const params = new URLSearchParams(window.location.search);
-        if(params.get('room')) document.getElementById('roomNo').value = params.get('room');
+        const selectedRoom = params.get('room');
+        if(selectedRoom) document.getElementById('roomNo').value = selectedRoom;
+
         document.getElementById('checkin').value = new Date().toISOString().split('T')[0];
         document.getElementById('checkin').addEventListener('change', recalc);
         document.getElementById('checkout').addEventListener('change', recalc);
-        recalc();
+
+        // Fetch dynamic room price from Sheets
+        try {
+            const resp = await fetch(SCRIPT_URL + "?action=getFullStatus");
+            const data = await resp.json();
+            const roomObj = data.rooms.find(r => r.number == selectedRoom);
+            // Dynamic price from Column C, else fallback 1500
+            CURRENT_ROOM_PRICE = roomObj ? roomObj.price : 1500; 
+            recalc();
+        } catch(e) {
+            CURRENT_ROOM_PRICE = 1500;
+            recalc();
+        }
     };
 
     function goPage(u) { window.location.href = u; }
@@ -208,7 +224,7 @@
         if(coutVal) {
             days = Math.ceil(Math.abs(new Date(coutVal) - cin) / (1000 * 60 * 60 * 24)) || 1;
         }
-        let rent = days * RENT_PER_DAY;
+        let rent = days * CURRENT_ROOM_PRICE;
         document.getElementById('bDays').innerText = days;
         document.getElementById('bRent').innerText = "₹" + rent;
         let srvSum = srvTotals.Food + srvTotals.Water + srvTotals.Other;
@@ -236,7 +252,9 @@
             guestList.push({
                 name: card.querySelector('.name').value,
                 mobile: card.querySelector('.mobile').value,
-                docUrl: url
+                docUrl: url,
+                docType: card.querySelector('.doctype').value,
+                docNumber: card.querySelector('.docnumber').value
             });
         }
 
