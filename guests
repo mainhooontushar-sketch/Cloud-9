@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest List - HotelApp</title>
+    <link href="https://fonts.cdnfonts.com/css/glacial-indifference-2" rel="stylesheet">
+    <style>
+        :root {
+            --primary-red: #ff385c;
+            --bg-gray: #f6f7fb;
+            --sidebar-width: 200px;
+            --success-green: #2e7d32;
+        }
+
+        body { margin:0; font-family:'Glacial Indifference', sans-serif; background: var(--bg-gray); color: #333; font-size: 14px; }
+        
+        .sidebar { width: var(--sidebar-width); height:100vh; background:#fff; border-right:1px solid #ddd; position:fixed; top:0; left:0; display:flex; flex-direction:column; z-index: 100;}
+        .sidebar .logo { font-weight:bold; font-size:18px; padding:20px; border-bottom:1px solid #ddd; color: var(--primary-red); }
+        .sidebar ul { list-style:none; padding:0; margin:0; flex:1; }
+        .sidebar ul li { padding:12px 20px; cursor:pointer; transition: 0.2s; border-left: 4px solid transparent; font-size: 13px; }
+        .sidebar ul li:hover { background:#f9f9f9; border-left: 4px solid var(--primary-red); }
+        
+        .main-content { margin-left: var(--sidebar-width); padding:30px; }
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h1 { margin: 0; font-size: 24px; color: #111; }
+
+        .search-box { flex: 1; max-width: 350px; margin-bottom: 20px; }
+        .search-box input { width: 100%; padding: 10px 15px; border-radius: 8px; border: 1px solid #ddd; outline: none; font-family: inherit; font-size: 13px; }
+
+        .table-container { background: #fff; border-radius: 12px; border: 1px solid #ddd; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background: #f9f9f9; padding: 12px 15px; font-size: 11px; text-transform: uppercase; color: #777; border-bottom: 1px solid #eee; }
+        td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 13px; }
+
+        .badge { padding: 4px 10px; border-radius: 15px; font-size: 10px; font-weight: bold; }
+        .badge-in { background: #e8f5e9; color: var(--success-green); }
+        .extra-guest-tag { color: var(--primary-red); font-size: 9px; font-weight: bold; background: #fff5f6; padding: 1px 5px; border-radius: 4px; margin-left: 5px; }
+
+        .btn-info { background: #f0f0f0; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; color: #555; margin-right: 5px; font-weight: bold; font-size: 12px; }
+        .btn-co { background: var(--primary-red); color: white; border: none; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; }
+
+        .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:1000; backdrop-filter: blur(3px); }
+        .modal-content { background:#fff; padding:20px; width:480px; border-radius:12px; box-shadow: 0 15px 30px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; }
+        
+        /* New Info Section Styling */
+        .info-header-box { background: #fdfdfd; border: 1px solid #eee; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+        .info-title { font-size: 11px; color: #999; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; display: block; }
+        
+        .guest-box { border: 1px solid #eee; background: #fcfcfc; padding: 12px; border-radius: 8px; margin-top: 10px; position: relative; }
+        .guest-box h4 { margin: 0 0 8px 0; font-size: 13px; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; text-align: left; }
+        .detail-item label { display: block; font-size: 9px; color: #999; font-weight: bold; text-transform: uppercase; }
+        .detail-item span { font-size: 13px; color: #333; font-weight: bold; }
+        .btn-id-link { position: absolute; top: 10px; right: 12px; color: var(--primary-red); text-decoration: none; font-weight: bold; font-size: 10px; border: 1px solid var(--primary-red); padding: 2px 6px; border-radius: 4px; }
+
+        .billing-box { background: #f9f9f9; padding: 12px; border-radius: 8px; margin: 12px 0; border: 1px solid #eee; }
+        .bill-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; }
+        .bill-total { border-top: 2px dashed #ddd; padding-top: 8px; margin-top: 8px; font-weight: bold; font-size: 18px; color: var(--primary-red); }
+
+        input, select { width: 100%; height: 35px; margin-top: 4px; border: 1px solid #ddd; border-radius: 6px; padding: 0 10px; box-sizing: border-box; font-family: inherit; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="logo">HotelApp</div>
+    <ul>
+        <li onclick="goPage('index.html')">🏠 Dashboard</li>
+        <li onclick="goPage('rooms.html')">🛏️ Rooms</li>
+        <li onclick="goPage('form.html')">👤 Guests</li>
+        <li onclick="goPage('payments.html')">💳 Payments</li>
+        <li onclick="goPage('settings.html')">⚙️ Settings</li>
+    </ul>
+</div>
+
+<div class="main-content">
+    <div class="header-row">
+        <h1>Guest Directory</h1>
+        <div id="loading-state" style="font-size:12px; color:#666;">● System Live</div>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="guestSearch" placeholder="Search by name, room, or mobile..." onkeyup="filterTable()">
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Room</th>
+                    <th>Guest Name</th>
+                    <th>Mobile No</th>
+                    <th>Stay</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="guestBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal" id="infoModal">
+    <div class="modal-content">
+        <h2 style="margin-top:0; color: var(--primary-red); font-size: 20px;">Booking Details</h2>
+        
+        <div class="info-header-box">
+            <div class="detail-grid">
+                <div class="detail-item"><label>Booking ID</label><span id="infoBookingId">-</span></div>
+                <div class="detail-item"><label>Room No</label><span id="infoRoomNo">-</span></div>
+                <div class="detail-item"><label>Check-In Date</label><span id="infoCheckin">-</span></div>
+                <div class="detail-item"><label>Check-Out Date</label><span id="infoCheckout">-</span></div>
+                <div class="detail-item"><label>Stay Duration</label><span id="infoStayDays">-</span></div>
+            </div>
+        </div>
+
+        <div id="infoG1" class="guest-box">
+            <h4>Guest 1 (Primary)</h4>
+            <a id="g1Id" href="#" target="_blank" class="btn-id-link">VIEW ID</a>
+            <div class="detail-grid">
+                <div class="detail-item"><label>Name</label><span id="detName1">-</span></div>
+                <div class="detail-item"><label>Mobile</label><span id="detMob1">-</span></div>
+                <div class="detail-item"><label>ID Number</label><span id="detNum1">-</span></div>
+            </div>
+        </div>
+        <div id="infoG2" class="guest-box" style="display:none;">
+            <h4>Guest 2</h4>
+            <a id="g2Id" href="#" target="_blank" class="btn-id-link">VIEW ID</a>
+            <div class="detail-grid">
+                <div class="detail-item"><label>Name</label><span id="detName2">-</span></div>
+                <div class="detail-item"><label>Mobile</label><span id="detMob2">-</span></div>
+                <div class="detail-item"><label>ID Number</label><span id="detNum2">-</span></div>
+            </div>
+        </div>
+        <button class="btn-co" style="width:100%; padding:12px; margin-top:15px;" onclick="closeModals()">CLOSE</button>
+    </div>
+</div>
+
+<div class="modal" id="checkoutModal">
+    <div class="modal-content">
+        <h2 id="coRoom" style="margin-top:0; color: var(--primary-red); font-size: 20px;">Checkout</h2>
+        
+        <div style="display: flex; gap: 8px; align-items: flex-end; margin-top: 10px;">
+            <div style="flex:2;"><label style="font-size:9px; font-weight:bold;">SERVICE</label>
+                <select id="srvType"><option>Food</option><option>Water</option><option>Laundry</option><option>Other</option></select>
+            </div>
+            <div style="flex:1;"><label style="font-size:9px; font-weight:bold;">AMOUNT</label>
+                <input type="number" id="srvAmt" placeholder="0">
+            </div>
+            <button class="btn-info" style="height:35px; margin:0;" onclick="addService()">ADD</button>
+        </div>
+
+        <div class="billing-box">
+            <div class="bill-row"><span>Room Rent (<span id="coDays">0</span> days)</span> <span id="coRent">₹0</span></div>
+            <div id="coSrvList"></div>
+            <div class="bill-row" style="margin-top:8px; border-top:1px solid #eee; padding-top:8px;">
+                <span>Discount (₹)</span>
+                <input type="number" id="coDiscount" value="0" style="width:70px; height:25px; text-align:right;" oninput="updateTotal()">
+            </div>
+            <div class="bill-row bill-total"><span>Total</span> <span id="coTotal">₹0</span></div>
+        </div>
+
+        <label style="font-size:9px; font-weight:bold;">PAYMENT METHOD</label>
+        <select id="coMethod"><option>Cash</option><option>UPI</option><option>Card</option></select>
+
+        <button class="btn-co" style="width:100%; padding:12px; margin-top:15px;" onclick="finalizeCheckout()">FINALIZE CHECKOUT</button>
+        <button style="width:100%; border:none; background:none; color:#999; margin-top:8px; cursor:pointer; font-size: 12px;" onclick="closeModals()">Cancel</button>
+    </div>
+</div>
+
+<script>
+const IS_TEST_MODE = true;
+const PRICE_PER_DAY = 1500;
+let services = [];
+let baseRent = 0;
+
+// Format: YYYY-MM-DD for JS parsing
+const mockData = [
+    { 
+        bookingId: "BK-9921",
+        row: 2, room: "101", checkin: "2026-03-15", checkout: "OPEN",
+        g1: { name: "Rahul Sharma", mob: "9876543210", num: "1234-5678", url: "#" },
+        g2: { name: "Anjali Sharma", mob: "9876543211", num: "9876-5432", url: "#" }
+    },
+    { 
+        bookingId: "BK-8840",
+        row: 4, room: "0580", checkin: "2026-03-10", checkout: "2026-03-12",
+        g1: { name: "John Doe", mob: "9123456789", num: "Z998877", url: "#" },
+        g2: null 
+    }
+];
+
+function goPage(url) { window.location.href = url; }
+
+// Helper to format Date string to DD-MM-YYYY
+function formatDate(dateStr) {
+    if(!dateStr || dateStr === "OPEN") return "OPEN";
+    const d = new Date(dateStr);
+    return String(d.getDate()).padStart(2, '0') + '-' + 
+           String(d.getMonth() + 1).padStart(2, '0') + '-' + 
+           d.getFullYear();
+}
+
+function getDays(date) {
+    const checkin = new Date(date);
+    const today = new Date();
+    const diff = Math.ceil(Math.abs(today - checkin) / (1000 * 60 * 60 * 24));
+    return diff === 0 ? 1 : diff;
+}
+
+function loadTable() {
+    const tbody = document.getElementById('guestBody');
+    tbody.innerHTML = '';
+    mockData.forEach((g, idx) => {
+        const days = getDays(g.checkin);
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td style="font-weight:bold; color:var(--primary-red);">${g.room}</td>
+            <td>${g.g1.name} ${g.g2 ? '<span class="extra-guest-tag">+1 Guest</span>' : ''}</td>
+            <td>${g.g1.mob}</td>
+            <td>${days} Days</td>
+            <td><span class="badge ${g.checkout === 'OPEN' ? 'badge-in' : ''}">${g.checkout === 'OPEN' ? 'In-House' : 'Out'}</span></td>
+            <td>
+                <button class="btn-info" onclick="openInfo(${idx})">ⓘ INFO</button>
+                ${g.checkout === 'OPEN' ? `<button class="btn-co" onclick="openCheckout(${idx})">CHECKOUT</button>` : ''}
+            </td>`;
+        tbody.appendChild(row);
+    });
+}
+
+function filterTable() {
+    const input = document.getElementById("guestSearch").value.toUpperCase();
+    const rows = document.getElementById("guestBody").getElementsByTagName("tr");
+    for (let i = 0; i < rows.length; i++) {
+        const text = rows[i].textContent || rows[i].innerText;
+        rows[i].style.display = text.toUpperCase().indexOf(input) > -1 ? "" : "none";
+    }
+}
+
+function openInfo(idx) {
+    const g = mockData[idx];
+    document.getElementById('infoModal').style.display = 'flex';
+    
+    // Header Info
+    document.getElementById('infoBookingId').innerText = g.bookingId || "N/A";
+    document.getElementById('infoRoomNo').innerText = g.room;
+    document.getElementById('infoCheckin').innerText = formatDate(g.checkin);
+    document.getElementById('infoCheckout').innerText = formatDate(g.checkout);
+    document.getElementById('infoStayDays').innerText = getDays(g.checkin) + " Days";
+
+    // Guest 1
+    document.getElementById('detName1').innerText = g.g1.name;
+    document.getElementById('detMob1').innerText = g.g1.mob;
+    document.getElementById('detNum1').innerText = g.g1.num;
+    document.getElementById('g1Id').href = g.g1.url;
+    
+    // Guest 2
+    if(g.g2) {
+        document.getElementById('infoG2').style.display = 'block';
+        document.getElementById('detName2').innerText = g.g2.name;
+        document.getElementById('detMob2').innerText = g.g2.mob;
+        document.getElementById('detNum2').innerText = g.g2.num;
+        document.getElementById('g2Id').href = g.g2.url;
+    } else { document.getElementById('infoG2').style.display = 'none'; }
+}
+
+function openCheckout(idx) {
+    const g = mockData[idx];
+    const days = getDays(g.checkin);
+    baseRent = days * PRICE_PER_DAY;
+    services = [];
+    document.getElementById('checkoutModal').style.display = 'flex';
+    document.getElementById('coRoom').innerText = "Checkout Room " + g.room;
+    document.getElementById('coDays').innerText = days;
+    document.getElementById('coRent').innerText = "₹" + baseRent;
+    document.getElementById('coSrvList').innerHTML = '';
+    document.getElementById('coDiscount').value = 0;
+    updateTotal();
+}
+
+function addService() {
+    const type = document.getElementById('srvType').value;
+    const amt = parseInt(document.getElementById('srvAmt').value);
+    if(!amt) return;
+    services.push({type, amt});
+    const div = document.createElement('div');
+    div.className = 'bill-row';
+    div.innerHTML = `<span style="color:#666;">+ ${type}</span> <span>₹${amt}</span>`;
+    document.getElementById('coSrvList').appendChild(div);
+    document.getElementById('srvAmt').value = '';
+    updateTotal();
+}
+
+function updateTotal() {
+    const srvTotal = services.reduce((sum, s) => sum + s.amt, 0);
+    const disc = parseInt(document.getElementById('coDiscount').value) || 0;
+    document.getElementById('coTotal').innerText = "₹" + (baseRent + srvTotal - disc);
+}
+
+function closeModals() { 
+    document.getElementById('infoModal').style.display = 'none'; 
+    document.getElementById('checkoutModal').style.display = 'none'; 
+}
+
+function finalizeCheckout() {
+    alert("Checkout Finalized Amount: " + document.getElementById('coTotal').innerText);
+    location.reload();
+}
+
+window.onload = loadTable;
+</script>
+</body>
+</html>
